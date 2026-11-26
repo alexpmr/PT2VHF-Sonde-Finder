@@ -145,4 +145,6 @@
     <string name="align_reset">Zeruj</string>
     <string name="align_done">Korekta kompasu: %1$+.0f°</string>
     <string name="offset_suffix">" · kor. %1$+.0f°"</string>
+    <string name="hmode_compass">Kurs: kompas telefonu · dotknij, aby zmienić</string>
+    <string name="hmode_gps">Kurs: GPS w ruchu (samochód) · dotknij, aby zmienić</string>
 </resources>

@@ -144,4 +144,6 @@
     <string name="align_reset">Restablecer</string>
     <string name="align_done">Ajuste de brújula: %1$+.0f°</string>
     <string name="offset_suffix">" · ajuste %1$+.0f°"</string>
+    <string name="hmode_compass">Rumbo: brújula del teléfono · toque para cambiar</string>
+    <string name="hmode_gps">Rumbo: GPS en movimiento (auto) · toque para cambiar</string>
 </resources>

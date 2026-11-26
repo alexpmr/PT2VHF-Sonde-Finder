@@ -144,4 +144,6 @@
     <string name="align_reset">Zerar</string>
     <string name="align_done">Ajuste da bússola: %1$+.0f°</string>
     <string name="offset_suffix">" · ajuste %1$+.0f°"</string>
+    <string name="hmode_compass">Rumo: bússola do celular · toque para mudar</string>
+    <string name="hmode_gps">Rumo: GPS em movimento (carro) · toque para mudar</string>
 </resources>

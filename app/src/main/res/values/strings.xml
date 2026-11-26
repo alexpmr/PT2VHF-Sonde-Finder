@@ -144,4 +144,6 @@
     <string name="align_reset">Reset</string>
     <string name="align_done">Compass adjustment: %1$+.0f°</string>
     <string name="offset_suffix">" · adj. %1$+.0f°"</string>
+    <string name="hmode_compass">Heading: phone compass · tap to change</string>
+    <string name="hmode_gps">Heading: GPS while moving (car) · tap to change</string>
 </resources>

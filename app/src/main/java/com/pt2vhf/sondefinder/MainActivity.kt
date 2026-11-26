@@ -143,11 +143,18 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             hideRecovered = it.getBoolean("hideRecovered", false)
             mapHeadingUp = it.getBoolean("mapHeadingUp", false)
             compassOffset = it.getFloat("compassOffset", 0f)
+            gpsWhenMoving = it.getBoolean("gpsWhenMoving", false)
         }
         setupMap()
         if (mapHeadingUp) map.post { setMapHeadingUp(true, false) }
         compass = findViewById(R.id.compass)
         compass.setOnLongClickListener { showAlignDialog(); true }
+        findViewById<TextView>(R.id.btnHeadingMode).setOnClickListener {
+            gpsWhenMoving = !gpsWhenMoving
+            getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("gpsWhenMoving", gpsWhenMoving).apply()
+            renderHeadingMode(); updateHeading()
+        }
+        renderHeadingMode()
         findViewById<View>(R.id.btnSound).setOnClickListener {
             setDetector(!detectorOn)
             Toast.makeText(this, if (detectorOn) R.string.detector_on_toast else R.string.detector_off, Toast.LENGTH_SHORT).show()
@@ -498,7 +505,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     /** Effective heading: GPS course while moving, electronic compass when stopped. */
     private fun updateHeading() {
-        val gpsFresh = System.currentTimeMillis() - gpsCourseAt < 4000L
+        // GPS course only when chosen, or when the phone has no compass at all
+        val gpsFresh = (gpsWhenMoving || !compassSensor) && System.currentTimeMillis() - gpsCourseAt < 4000L
         headingFromGps = gpsFresh
         val target = if (gpsFresh) gpsCourse else if (haveMag) magHeading else return
         if (!haveHeading) { heading = target; haveHeading = true }
@@ -509,6 +517,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             heading = (heading + diff * (if (gpsFresh) 0.35f else 0.15f) + 360f) % 360f
         }
         if (compassMode) renderCompass() else { rotateMap(); updateCone() }
+    }
+
+    private fun renderHeadingMode() {
+        findViewById<TextView>(R.id.btnHeadingMode).text =
+            getString(if (gpsWhenMoving) R.string.hmode_gps else R.string.hmode_compass)
     }
 
     private fun updateCone() {
@@ -572,6 +585,9 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var compassSensor = true
     private var rawMag = 0f
     private var compassOffset = 0f
+    /** false: always the phone's compass (needle follows where the phone points).
+     *  true: GPS course while moving (phone fixed in a car mount, avoids magnetic interference). */
+    private var gpsWhenMoving = false
 
     /**
      * Rotation vector only when the phone has a gyroscope; many phones without one expose no

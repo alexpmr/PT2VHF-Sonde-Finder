@@ -144,4 +144,6 @@
     <string name="align_reset">Réinitialiser</string>
     <string name="align_done">Correction boussole : %1$+.0f°</string>
     <string name="offset_suffix">" · corr. %1$+.0f°"</string>
+    <string name="hmode_compass">Cap : boussole du téléphone · touchez pour changer</string>
+    <string name="hmode_gps">Cap : GPS en mouvement (voiture) · touchez pour changer</string>
 </resources>

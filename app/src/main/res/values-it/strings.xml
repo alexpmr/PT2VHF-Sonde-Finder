@@ -144,4 +144,6 @@
     <string name="align_reset">Azzera</string>
     <string name="align_done">Correzione bussola: %1$+.0f°</string>
     <string name="offset_suffix">" · corr. %1$+.0f°"</string>
+    <string name="hmode_compass">Rotta: bussola del telefono · tocca per cambiare</string>
+    <string name="hmode_gps">Rotta: GPS in movimento (auto) · tocca per cambiare</string>
 </resources>

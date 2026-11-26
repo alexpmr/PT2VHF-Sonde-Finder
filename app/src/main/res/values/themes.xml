@@ -6,6 +6,9 @@
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:textColor">@color/text</item>
     </style>
+    <!-- Android 12+ shows a system splash (icon on dark) before ours; keep it matching. -->
+    <style name="SplashTheme" parent="AppTheme">
+    </style>
     <style name="Label">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/muted</item>

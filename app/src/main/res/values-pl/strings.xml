@@ -156,4 +156,7 @@
     <string name="style_liberty">Kolorowy</string>
     <string name="sort_by_distance">⇅ Wg odległości</string>
     <string name="sort_by_age">⇅ Wg wieku</string>
+    <string name="exit_title">Zamknąć Sonde Finder?</string>
+    <string name="exit_msg">Wyszukiwanie i detektor zbliżenia zostaną zatrzymane.</string>
+    <string name="exit_yes">Zamknij</string>
 </resources>

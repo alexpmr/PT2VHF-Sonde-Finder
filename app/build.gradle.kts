@@ -9,8 +9,8 @@ android {
         applicationId = "com.pt2vhf.sondefinder"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.7.0"
+        versionCode = 15
+        versionName = "1.8.0"
         // Real phones only (ARM); x86 builds exist only for emulators and double the APK size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
@@ -30,6 +30,15 @@ android {
             signingConfig = if (!releaseKeyStore.isNullOrBlank()) signingConfigs.getByName("release")
                 else signingConfigs.getByName("debug")
         }
+    }
+    buildFeatures { buildConfig = true }
+    // github: APK from www.pt2vhf.com with the site updater (OTA).
+    // play:   AAB for Google Play; Play forbids self-updates, so the updater and
+    //         REQUEST_INSTALL_PACKAGES are left out (manifest lives in src/github).
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") { dimension = "store"; buildConfigField("boolean", "OTA", "true") }
+        create("play") { dimension = "store"; buildConfigField("boolean", "OTA", "false") }
     }
     // Compress the native map library inside the APK (smaller download for sideloading).
     packaging { jniLibs { useLegacyPackaging = true } }

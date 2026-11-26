@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK and AAB
 
 on:
   push:
@@ -26,15 +26,17 @@ jobs:
         run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "PT2VHF_SIGNING_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-      - name: Build release APK
-        run: ./gradlew --no-daemon assembleRelease
-      - name: Name the APK
+      - name: Build site APK (github) and Google Play AAB (play)
+        run: ./gradlew --no-daemon assembleGithubRelease bundlePlayRelease
+      - name: Name the outputs
         run: |
           V=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
           S=$([ -n "$PT2VHF_SIGNING_STORE_FILE" ] && echo "" || echo "-DEBUG-KEY")
-          mkdir -p out && cp app/build/outputs/apk/release/app-release.apk "out/PT2VHF-Sonde-Finder-v$V$S.apk"
-          sha256sum out/*.apk
+          mkdir -p out
+          cp app/build/outputs/apk/github/release/app-github-release.apk "out/PT2VHF-Sonde-Finder-v$V$S.apk"
+          cp app/build/outputs/bundle/playRelease/app-play-release.aab "out/PT2VHF-Sonde-Finder-v$V$S-play.aab"
+          sha256sum out/*
       - uses: actions/upload-artifact@v4
         with:
-          name: PT2VHF-Sonde-Finder-apk
-          path: out/*.apk
+          name: PT2VHF-Sonde-Finder
+          path: out/*

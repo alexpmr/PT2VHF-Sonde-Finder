@@ -68,10 +68,14 @@ object UpdateManager {
             if (f.optString("kind") != "apk" || f.optString("platform") != "android") continue
             val name = f.optString("name")
             if (name != "PT2VHF-Sonde-Finder-v$version.apk") continue
-            val url = f.optString("url")
-            val u = Uri.parse(url)
-            if (u.scheme != "https" || u.host != "www.pt2vhf.com" || u.path != "/download.php" ||
-                u.getQueryParameter("product") != "sonde" || u.getQueryParameter("file") != name) continue
+            val u = Uri.parse(f.optString("url"))
+            // update.php lists the file under /downloads/sonde-finder/; the download itself goes
+            // through download.php so it is counted (once) like the manual downloads.
+            val direct = u.path == "/downloads/sonde-finder/$name" && u.query == null
+            val counted = u.path == "/download.php" && u.getQueryParameter("product") == "sonde" &&
+                u.getQueryParameter("file") == name
+            if (u.scheme != "https" || u.host != "www.pt2vhf.com" || !(direct || counted)) continue
+            val url = "https://www.pt2vhf.com/download.php?product=sonde&file=" + Uri.encode(name)
             val sha = f.optString("sha256").lowercase()
             if (!Regex("^[a-f0-9]{64}$").matches(sha)) continue
             val size = f.optLong("size", 0)

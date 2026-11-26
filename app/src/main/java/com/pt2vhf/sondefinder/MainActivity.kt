@@ -155,7 +155,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.btnCenter).setOnClickListener { fitAll() }
         findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
         findViewById<View>(R.id.btnAbout).setOnClickListener { showAbout() }
-        UpdateManager.check(this, false)
+        if (BuildConfig.OTA) UpdateManager.check(this, false)
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            // Android 13+ (and predictive back on 16): onBackPressed is no longer called
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { handleBack() }
+        }
         findViewById<View>(R.id.btnCenter).setOnLongClickListener { fitEverything(); true }
         findViewById<View>(R.id.btnCopy).setOnClickListener { copyCoords() }
         findViewById<View>(R.id.btnNav).setOnClickListener { navigate() }
@@ -478,7 +482,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var chipBearing = 0f
     private fun updateChipArrow() {
         // icon points NE by default; on a rotated map the arrow must follow the map
-        findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - 45f - map.bearing
+        // symmetric arrow pointing up; on a rotated map it must follow the map
+        findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - map.bearing
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -556,7 +561,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         return n[(((d % 360 + 360) % 360) / 45.0).roundToInt() % 8]
     }
 
-    private fun fmtAlt(a: Double) = if (a.isNaN()) "—" else String.format(BR, "%,.0f m", a)
+    // no-break space between number and unit: "1.075 m" never splits across lines
+    private fun fmtAlt(a: Double) = if (a.isNaN()) "—" else String.format(BR, "%,.0f\u00A0m", a)
 
     private fun ageColor(sec: Long) = when { sec < 30 -> GREEN; sec < 120 -> AMBER; else -> RED }
 
@@ -691,7 +697,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             val r = FloatArray(2)
             Location.distanceBetween(u.latitude, u.longitude, s.lat, s.lon, r)
             var b = r[1].toDouble(); if (b < 0) b += 360
-            txt(R.id.chipDist, fmtDist(r[0].toDouble()).let { "${it.first} ${it.second}" })
+            txt(R.id.chipDist, fmtDist(r[0].toDouble()).let { "${it.first}\u00A0${it.second}" })
             txt(R.id.chipBearing, getString(R.string.chip_bearing, b, cardinal(b)))
             chipBearing = b.toFloat(); updateChipArrow()
             if (!s.alt.isNaN()) {
@@ -936,12 +942,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         for (o in sorted) {
             val dist = if (u == null) "" else {
                 Location.distanceBetween(u.latitude, u.longitude, o.lat, o.lon, res)
-                fmtDist(res[0].toDouble()).let { "${it.first} ${it.second}" }
+                fmtDist(res[0].toDouble()).let { "${it.first}\u00A0${it.second}" }
             }
             val mark = if (manualSerial == o.serial) "● " else ""
             val rv = recoveries[o.serial]
             val tag = if (rv?.recovered == true) "  ·  " + getString(R.string.tag_recovered) else if (rv != null) "  ·  " + getString(R.string.tag_not_found) else ""
-            items.add("$mark${o.serial}  ·  $dist  ·  ${ageText((now - o.timeMs) / 1000)}  ·  ${fmtAlt(o.alt)}$tag")
+            items.add("$mark${o.serial}  ·  $dist  ·  ${ageText((now - o.timeMs) / 1000).replace(' ', '\u00A0')}  ·  ${fmtAlt(o.alt)}$tag")
         }
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.choose_title)
@@ -1048,11 +1054,31 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     // ---------------------------------------------------------------- actions
 
+    // ---------------------------------------------------------------- back / exit
+
+    /** Back: compass screen returns to the map; on the map, confirm before closing. */
+    private fun handleBack() {
+        if (compassMode) { showCompass(false); return }
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.exit_title)
+            .setMessage(R.string.exit_msg)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.exit_yes) { _, _ -> finish() }
+            .show()
+    }
+
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    override fun onBackPressed() {
+        // Android 8–12 (and 13+ when the callback above is not used)
+        handleBack()
+    }
+
     private fun showAbout() {
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.app_name)
             .setMessage(getString(R.string.about_msg, UpdateManager.installedVersion(this)))
-            .setPositiveButton(R.string.check_updates) { _, _ -> UpdateManager.check(this, true) }
+            .apply { if (BuildConfig.OTA) setPositiveButton(R.string.check_updates) { _, _ -> UpdateManager.check(this@MainActivity, true) } }
             .setNeutralButton("www.PT2VHF.com") { _, _ ->
                 try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pt2vhf.com"))) } catch (_: Exception) {}
             }

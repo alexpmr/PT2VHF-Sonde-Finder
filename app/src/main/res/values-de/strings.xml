@@ -154,4 +154,7 @@
     <string name="style_liberty">Farbig</string>
     <string name="sort_by_distance">⇅ Nach Entfernung</string>
     <string name="sort_by_age">⇅ Nach Alter</string>
+    <string name="exit_title">Sonde Finder schließen?</string>
+    <string name="exit_msg">Die Suche und der Näherungsdetektor werden beendet.</string>
+    <string name="exit_yes">Schließen</string>
 </resources>

@@ -4,19 +4,15 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Seta do selo de distância (mapa) aponta para o lado errado** (captura de teste, v1.7.0): selo dizia
-  "159° S" com o mapa em norte para cima, mas a seta azul apontava para oeste. A bússola e a linha no mapa
-  estavam certas. Revisar o cálculo da rotação do ícone (`chipBearing - 45 - map.bearing`) com o MapLibre.
-- **Lista de sondas: a altitude quebra linha** ("1.075 m" vira "1.075" + "m"). Usar espaço não separável
-  ou layout em duas linhas por item.
-
-- **Confirmar antes de fechar o app** (pedido de teste, v1.7.0). Ao tocar em Voltar na tela
-  principal, perguntar se quer mesmo sair (evita fechar sem querer durante a busca/detector).
-
-- **Atualização automática**: o site ainda não publica `product=sonde` em
-  `update.php`/`download.php`; falta também a chave de assinatura permanente nos secrets.
+- **Atualização automática**: depende do site publicar `product=sonde` (feito na v1.8.0) e dos secrets da chave
+  permanente no GitHub (o CI assina com eles; sem eles gera `-DEBUG-KEY`).
 
 ## Resolvido
+
+- **v1.8.0** — Confirmar antes de fechar o app (Voltar no mapa pergunta; na bússola volta ao mapa; Android 8–16).
+  Seta do selo de distância: estava certa, mas o ícone assimétrico girado parecia apontar para o outro lado;
+  trocado por seta simétrica. Altitude/distância/idade sem quebra de linha na lista (espaço não separável).
+  Versões `github` (APK do site, com OTA) e `play` (AAB, sem OTA nem `REQUEST_INSTALL_PACKAGES`).
 
 - **Busca histórica retornava só ~8 sondas** (v1.7.0). O `GET /sondes` só enxerga ~3–4 dias.
   Janelas acima de 3 dias agora usam `GET /sondes/summary` (fatias de 30 dias, divididas quando

@@ -155,4 +155,7 @@
     <string name="style_liberty">Colorato</string>
     <string name="sort_by_distance">⇅ Per distanza</string>
     <string name="sort_by_age">⇅ Per età</string>
+    <string name="exit_title">Chiudere Sonde Finder?</string>
+    <string name="exit_msg">La ricerca e il rilevatore di prossimità si fermeranno.</string>
+    <string name="exit_yes">Chiudi</string>
 </resources>

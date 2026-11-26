@@ -155,4 +155,7 @@
     <string name="style_liberty">Colorido</string>
     <string name="sort_by_distance">⇅ Por distancia</string>
     <string name="sort_by_age">⇅ Por antigüedad</string>
+    <string name="exit_title">¿Cerrar Sonde Finder?</string>
+    <string name="exit_msg">La búsqueda y el detector de proximidad se detendrán.</string>
+    <string name="exit_yes">Cerrar</string>
 </resources>

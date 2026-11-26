@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="Conectando…"
+                android:text="@string/connecting"
                 android:textColor="#7BEFAE"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -145,7 +145,7 @@
                             android:id="@+id/chipBearing"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="aguardando GPS"
+                            android:text="@string/waiting_gps_lc"
                             android:textColor="@color/muted"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -188,7 +188,7 @@
                         android:gravity="center_vertical"
                         android:paddingStart="10dp"
                         android:paddingEnd="12dp"
-                        android:text="0 sondas"
+                        android:text="@string/zero_sondes"
                         android:textColor="@color/text"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -202,7 +202,7 @@
                     android:layout_marginEnd="12dp"
                     android:layout_marginBottom="36dp"
                     android:background="@drawable/bg_blue_btn"
-                    android:contentDescription="Centralizar em você e na sonda"
+                    android:contentDescription="@string/center_desc"
                     android:src="@drawable/ic_center"
                     android:tint="@color/bg" />
             </FrameLayout>
@@ -250,7 +250,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:letterSpacing="0.08"
-                                android:text="AUTOMÁTICO · MAIS RECENTE"
+                                android:text="@string/mode_auto"
                                 android:textColor="@color/muted"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
@@ -265,7 +265,7 @@
                                 android:paddingTop="2dp"
                                 android:paddingEnd="8dp"
                                 android:paddingBottom="2dp"
-                                android:text="voltar ao auto"
+                                android:text="@string/back_to_auto"
                                 android:textColor="@color/accent_soft"
                                 android:textSize="11sp"
                                 android:textStyle="bold"
@@ -335,7 +335,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Último pacote"
+                        android:text="@string/last_packet"
                         android:textColor="@color/text2"
                         android:textSize="13sp" />
 
@@ -379,17 +379,17 @@
                     android:orientation="horizontal">
 
                     <LinearLayout style="@style/StatCard">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Altitude" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/altitude" />
                         <TextView android:id="@+id/vAlt" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vel. vertical" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/vel_vertical" />
                         <TextView android:id="@+id/vVv" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vel. horizontal" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/vel_horizontal" />
                         <TextView android:id="@+id/vVh" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
                 </LinearLayout>
@@ -401,17 +401,17 @@
                     android:orientation="horizontal">
 
                     <LinearLayout style="@style/StatCard">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rumo" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/heading_lbl" />
                         <TextView android:id="@+id/vHead" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frequência" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/frequency" />
                         <TextView android:id="@+id/vFreq" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pouso em" />
+                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
                         <TextView android:id="@+id/vEta" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
                 </LinearLayout>
@@ -433,7 +433,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Última posição"
+                            android:text="@string/last_position"
                             android:textColor="@color/muted"
                             android:textSize="11sp" />
 
@@ -452,7 +452,7 @@
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:background="@drawable/bg_outline_btn"
-                        android:contentDescription="Copiar coordenadas"
+                        android:contentDescription="@string/copy_coords"
                         android:src="@drawable/ic_copy"
                         android:tint="@color/text" />
 
@@ -463,7 +463,7 @@
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_accent_btn"
                         android:clickable="true"
-                        android:contentDescription="Navegar até a sonda"
+                        android:contentDescription="@string/navigate_desc"
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
@@ -481,7 +481,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="Navegar"
+                            android:text="@string/navigate"
                             android:textColor="@color/bg"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -515,7 +515,7 @@
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Última posição"
+                    android:text="@string/last_position"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -526,7 +526,7 @@
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Pouso previsto"
+                    android:text="@string/predicted_landing"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -588,7 +588,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.1"
-                android:text="ATÉ A ÚLTIMA POSIÇÃO RECEBIDA"
+                android:text="@string/to_last_position"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -646,7 +646,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_outline_btn"
                 android:gravity="center"
-                android:text="Detector de proximidade: desligado"
+                android:text="@string/detector_off"
                 android:textColor="@color/text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -659,21 +659,21 @@
                 android:orientation="horizontal">
 
                 <LinearLayout style="@style/StatCard">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Altitude" />
+                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/altitude" />
                     <TextView android:id="@+id/cAlt" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
                     <TextView android:id="@+id/cVv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="monospace" android:textColor="@color/accent_soft" android:textSize="11sp" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Elevação" />
+                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/elevation" />
                     <TextView android:id="@+id/cElev" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="p/ a antena" />
+                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/for_antenna" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pouso em" />
+                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
                     <TextView android:id="@+id/cEta" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="previsão" />
+                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/forecast" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -712,7 +712,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Mapa"
+                android:text="@string/nav_map"
                 android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -740,7 +740,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Bússola"
+                android:text="@string/nav_compass"
                 android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>

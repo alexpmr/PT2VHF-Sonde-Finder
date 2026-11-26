@@ -24,6 +24,7 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
     var needleColor = Color.parseColor("#FF8A3D")
         set(v) { field = v; invalidate() }
 
+    private val cards: Array<String> = resources.getStringArray(R.array.cardinals4)
     private var shownHeading = 0f
     private var shownRel = 0f
     private var first = true
@@ -113,7 +114,7 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
             val deg = i * 30
             c.save()
             c.rotate(deg.toFloat(), cx, cy)
-            val label = when (deg) { 0 -> "N"; 90 -> "L"; 180 -> "S"; 270 -> "O"; else -> null }
+            val label = when (deg) { 0 -> cards[0]; 90 -> cards[1]; 180 -> cards[2]; 270 -> cards[3]; else -> null }
             if (label != null) {
                 card.color = if (deg == 0) Color.parseColor("#FF5C5C") else Color.parseColor("#E8EDF1")
                 c.drawText(label, cx, cy - r + 30 * d + card.textSize * 0.8f, card)

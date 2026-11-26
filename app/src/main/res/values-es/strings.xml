@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connecting">Conectando…</string>
+    <string name="waiting_gps">Esperando GPS</string>
+    <string name="waiting_gps_lc">esperando GPS…</string>
+    <string name="no_connection">Sin conexión</string>
+    <string name="no_connection_sondehub">sin conexión con SondeHub</string>
+    <string name="live">SondeHub en vivo</string>
+    <string name="no_sonde">sin sonda</string>
+    <string name="searching">buscando…</string>
+    <string name="zero_sondes">0 sondas</string>
+    <string name="center_desc">Centrar en usted y la sonda</string>
+    <string name="mode_auto">AUTOMÁTICO · MÁS RECIENTE</string>
+    <string name="mode_manual">ELEGIDA MANUALMENTE</string>
+    <string name="back_to_auto">volver a auto</string>
+    <string name="last_packet">Último paquete</string>
+    <string name="last_position">Última posición</string>
+    <string name="copy_coords">Copiar coordenadas</string>
+    <string name="navigate_desc">Navegar hasta la sonda</string>
+    <string name="navigate">Navegar</string>
+    <string name="predicted_landing">Aterrizaje previsto</string>
+    <string name="to_last_position">HASTA LA ÚLTIMA POSICIÓN RECIBIDA</string>
+    <string name="to_landing">HASTA EL ATERRIZAJE PREVISTO</string>
+    <string name="nav_map">Mapa</string>
+    <string name="nav_compass">Brújula</string>
+    <string name="altitude">Altitud</string>
+    <string name="vel_vertical">Vel. vertical</string>
+    <string name="vel_horizontal">Vel. horizontal</string>
+    <string name="heading_lbl">Rumbo</string>
+    <string name="frequency">Frecuencia</string>
+    <string name="landing_in">Aterriza en</string>
+    <string name="elevation">Elevación</string>
+    <string name="for_antenna">para la antena</string>
+    <string name="forecast">previsión</string>
+    <string name="tagline">Localice y recupere radiosondas</string>
+    <string name="you">Usted</string>
+    <string name="chosen_left_filter">La sonda elegida salió del filtro; volviendo a automático.</string>
+    <string name="network_error">error de red</string>
+    <string name="no_location_perm">Sin permiso de ubicación no se puede encontrar la sonda más cercana.</string>
+    <string name="ago_s">hace %1$d s</string>
+    <string name="ago_min">hace %1$d min</string>
+    <string name="ago_h">hace %1$.1f h</string>
+    <string name="ago_d">hace %1$d d</string>
+    <string name="ago_y">hace %1$.1f años</string>
+    <string name="lt_1min">&lt; 1 min</string>
+    <string name="approx_min">~%1$d min</string>
+    <string name="no_sonde_in">ninguna sonda en %1$d km (%2$s)</string>
+    <string name="st_recovered">✓ RECUPERADA</string>
+    <string name="st_no_signal">SIN SEÑAL</string>
+    <string name="st_descending">↓ DESCENDIENDO</string>
+    <string name="st_ascending">↑ SUBIENDO</string>
+    <string name="st_landed">¿EN TIERRA?</string>
+    <string name="st_stable">ESTABLE</string>
+    <string name="via">vía %1$s</string>
+    <string name="recovered">Ya recuperada</string>
+    <string name="recovered_by">Ya recuperada por %1$s</string>
+    <string name="failed">Búsqueda sin éxito reportada</string>
+    <string name="failed_by">Búsqueda sin éxito reportada por %1$s</string>
+    <string name="high_last">Último paquete a %1$s por encima de usted: la sonda pudo caer más adelante%2$s.</string>
+    <string name="along_heading">, rumbo %1$.0f° %2$s</string>
+    <string name="no_compass">sin brújula</string>
+    <string name="straight_ahead">de frente</string>
+    <string name="turn_right">gire %1$.0f° a la derecha</string>
+    <string name="turn_left">gire %1$.0f° a la izquierda</string>
+    <string name="bearing_line">Rumbo %1$.0f° %2$s · %3$s</string>
+    <string name="chip_bearing">%1$.0f° %2$s · desde su posición</string>
+    <string name="one_year">1 año</string>
+    <string name="days_short">%1$d d</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="show_all">Mostrar todas</string>
+    <string name="hide_recovered">Ocultar recuperadas</string>
+    <string name="radius_label">RADIO DE BÚSQUEDA (desde usted)</string>
+    <string name="window_label">VENTANA DE TIEMPO (último paquete)</string>
+    <string name="recovered_label">YA RECUPERADAS (reportes en SondeHub)</string>
+    <string name="long_window_hint">Las ventanas largas también muestran sondas que ya cayeron (posición del último paquete recibido).</string>
+    <string name="filter_title">Filtro de búsqueda</string>
+    <string name="cancel">Cancelar</string>
+    <string name="apply">Aplicar</string>
+    <string name="close">Cerrar</string>
+    <string name="no_sonde_filter">Ninguna sonda en el filtro actual.</string>
+    <string name="auto_most_recent">Automático (más reciente)</string>
+    <string name="tag_recovered">✓ recuperada</string>
+    <string name="tag_not_found">✗ no encontrada</string>
+    <string name="choose_title">Elegir sonda para recuperar</string>
+    <string name="detector_off">Detector de proximidad: apagado</string>
+    <string name="detector_no_target">Detector encendido · sin objetivo</string>
+    <string name="detector_far">Detector encendido · objetivo a más de 3 km%1$s</string>
+    <string name="detector_dist">Detector encendido · %1$.0f m%2$s</string>
+    <string name="gps_acc">" · GPS ±%1$.0f m"</string>
+    <string name="coords_copied">Coordenadas copiadas</string>
+    <string name="no_nav_app">No se encontró app de navegación</string>
+    <plurals name="sondes_count">
+        <item quantity="one">%d sonda</item>
+        <item quantity="many">%d sondas</item>
+        <item quantity="other">%d sondas</item>
+    </plurals>
+    <string-array name="cardinals8">
+        <item>N</item>
+        <item>NE</item>
+        <item>E</item>
+        <item>SE</item>
+        <item>S</item>
+        <item>SO</item>
+        <item>O</item>
+        <item>NO</item>
+    </string-array>
+    <string-array name="cardinals4">
+        <item>N</item>
+        <item>E</item>
+        <item>S</item>
+        <item>O</item>
+    </string-array>
+</resources>

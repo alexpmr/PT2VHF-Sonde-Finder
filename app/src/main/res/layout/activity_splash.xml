@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="Localize e resgate radiossondas"
+        android:text="@string/tagline"
         android:textColor="@color/muted"
         android:textSize="14sp" />
 

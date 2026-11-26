@@ -17,6 +17,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 - **Aviso** quando o último pacote foi recebido muito acima do solo (a sonda pode ter caído adiante, no rumo indicado).
 - **Detector de proximidade**: bipe e vibração cada vez mais rápidos a partir de 3 km; som diferente abaixo de 50 m.
 - Copiar coordenadas e abrir no app de navegação.
+- **Idiomas**: inglês (padrão para idiomas sem tradução), português, espanhol, alemão, francês, italiano e polonês. No Android 13+ dá para escolher o idioma só do app em Configurações › Apps.
 
 ## Dados (SondeHub v2)
 

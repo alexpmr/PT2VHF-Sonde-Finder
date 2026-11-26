@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connecting">Verbinde…</string>
+    <string name="waiting_gps">Warte auf GPS</string>
+    <string name="waiting_gps_lc">warte auf GPS…</string>
+    <string name="no_connection">Keine Verbindung</string>
+    <string name="no_connection_sondehub">keine Verbindung zu SondeHub</string>
+    <string name="live">SondeHub live</string>
+    <string name="no_sonde">keine Sonde</string>
+    <string name="searching">suche…</string>
+    <string name="zero_sondes">0 Sonden</string>
+    <string name="center_desc">Auf dich und die Sonde zentrieren</string>
+    <string name="mode_auto">AUTOMATISCH · NEUESTE</string>
+    <string name="mode_manual">MANUELL GEWÄHLT</string>
+    <string name="back_to_auto">zurück zu Auto</string>
+    <string name="last_packet">Letztes Paket</string>
+    <string name="last_position">Letzte Position</string>
+    <string name="copy_coords">Koordinaten kopieren</string>
+    <string name="navigate_desc">Zur Sonde navigieren</string>
+    <string name="navigate">Navigieren</string>
+    <string name="predicted_landing">Vorhergesagte Landung</string>
+    <string name="to_last_position">ZUR LETZTEN EMPFANGENEN POSITION</string>
+    <string name="to_landing">ZUR VORHERGESAGTEN LANDUNG</string>
+    <string name="nav_map">Karte</string>
+    <string name="nav_compass">Kompass</string>
+    <string name="altitude">Höhe</string>
+    <string name="vel_vertical">Vert. Geschw.</string>
+    <string name="vel_horizontal">Horiz. Geschw.</string>
+    <string name="heading_lbl">Kurs</string>
+    <string name="frequency">Frequenz</string>
+    <string name="landing_in">Landung in</string>
+    <string name="elevation">Elevation</string>
+    <string name="for_antenna">für die Antenne</string>
+    <string name="forecast">Prognose</string>
+    <string name="tagline">Radiosonden finden und bergen</string>
+    <string name="you">Du</string>
+    <string name="chosen_left_filter">Die gewählte Sonde ist nicht mehr im Filter; zurück zu Automatisch.</string>
+    <string name="network_error">Netzwerkfehler</string>
+    <string name="no_location_perm">Ohne Standortberechtigung kann die nächste Sonde nicht gefunden werden.</string>
+    <string name="ago_s">vor %1$d s</string>
+    <string name="ago_min">vor %1$d min</string>
+    <string name="ago_h">vor %1$.1f h</string>
+    <string name="ago_d">vor %1$d T</string>
+    <string name="ago_y">vor %1$.1f Jahren</string>
+    <string name="lt_1min">&lt; 1 min</string>
+    <string name="approx_min">~%1$d min</string>
+    <string name="no_sonde_in">keine Sonde im Umkreis von %1$d km (%2$s)</string>
+    <string name="st_recovered">✓ GEBORGEN</string>
+    <string name="st_no_signal">KEIN SIGNAL</string>
+    <string name="st_descending">↓ SINKT</string>
+    <string name="st_ascending">↑ STEIGT</string>
+    <string name="st_landed">GELANDET?</string>
+    <string name="st_stable">STABIL</string>
+    <string name="via">via %1$s</string>
+    <string name="recovered">Bereits geborgen</string>
+    <string name="recovered_by">Bereits geborgen von %1$s</string>
+    <string name="failed">Erfolglose Suche gemeldet</string>
+    <string name="failed_by">Erfolglose Suche gemeldet von %1$s</string>
+    <string name="high_last">Letztes Paket %1$s über dir: die Sonde könnte weiter entfernt gelandet sein%2$s.</string>
+    <string name="along_heading">, Kurs %1$.0f° %2$s</string>
+    <string name="no_compass">kein Kompass</string>
+    <string name="straight_ahead">geradeaus</string>
+    <string name="turn_right">%1$.0f° nach rechts</string>
+    <string name="turn_left">%1$.0f° nach links</string>
+    <string name="bearing_line">Peilung %1$.0f° %2$s · %3$s</string>
+    <string name="chip_bearing">%1$.0f° %2$s · von deiner Position</string>
+    <string name="one_year">1 Jahr</string>
+    <string name="days_short">%1$d T</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="show_all">Alle zeigen</string>
+    <string name="hide_recovered">Geborgene ausblenden</string>
+    <string name="radius_label">SUCHRADIUS (von dir aus)</string>
+    <string name="window_label">ZEITFENSTER (letztes Paket)</string>
+    <string name="recovered_label">BEREITS GEBORGEN (SondeHub-Meldungen)</string>
+    <string name="long_window_hint">Lange Zeitfenster zeigen auch bereits gelandete Sonden (Position des zuletzt empfangenen Pakets).</string>
+    <string name="filter_title">Suchfilter</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="apply">Anwenden</string>
+    <string name="close">Schließen</string>
+    <string name="no_sonde_filter">Keine Sonde im aktuellen Filter.</string>
+    <string name="auto_most_recent">Automatisch (neueste)</string>
+    <string name="tag_recovered">✓ geborgen</string>
+    <string name="tag_not_found">✗ nicht gefunden</string>
+    <string name="choose_title">Sonde zum Bergen wählen</string>
+    <string name="detector_off">Näherungsdetektor: aus</string>
+    <string name="detector_no_target">Detektor an · kein Ziel</string>
+    <string name="detector_far">Detektor an · Ziel über 3 km entfernt%1$s</string>
+    <string name="detector_dist">Detektor an · %1$.0f m%2$s</string>
+    <string name="gps_acc">" · GPS ±%1$.0f m"</string>
+    <string name="coords_copied">Koordinaten kopiert</string>
+    <string name="no_nav_app">Keine Navigations-App gefunden</string>
+    <plurals name="sondes_count">
+        <item quantity="one">%d Sonde</item>
+        <item quantity="other">%d Sonden</item>
+    </plurals>
+    <string-array name="cardinals8">
+        <item>N</item>
+        <item>NO</item>
+        <item>O</item>
+        <item>SO</item>
+        <item>S</item>
+        <item>SW</item>
+        <item>W</item>
+        <item>NW</item>
+    </string-array>
+    <string-array name="cardinals4">
+        <item>N</item>
+        <item>O</item>
+        <item>S</item>
+        <item>W</item>
+    </string-array>
+</resources>

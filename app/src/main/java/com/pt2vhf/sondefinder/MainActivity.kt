@@ -68,7 +68,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val AMBER = Color.parseColor("#FFC43D")
         val RED = Color.parseColor("#FF5C7A")
         val MUTED = Color.parseColor("#9AA7B2")
-        val BR = Locale("pt", "BR")
+        val BR: Locale get() = Locale.getDefault()
     }
 
     private lateinit var map: MapView
@@ -225,7 +225,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
         landMarker = Marker(map).apply {
             icon = dotIcon(WHITE, 0, 34, 0f, cross = true)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = "Pouso previsto"; isEnabled = false
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = getString(R.string.predicted_landing); isEnabled = false
         }
         iconLive = dotIcon(ACCENT, Color.parseColor("#0E1419"), 24, 2f)
         iconOld = dotIcon(Color.parseColor("#8C99A5"), Color.parseColor("#0E1419"), 22, 2f)
@@ -237,7 +237,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         }
         userMarker = Marker(map).apply {
             icon = dotIcon(BLUE, Color.WHITE, 40, 3f)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = "Você"; isEnabled = false
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = getString(R.string.you); isEnabled = false
             setOnMarkerClickListener { _, _ -> true }
         }
         landMarker.setOnMarkerClickListener { _, _ -> targetLanding = true; showCompass(true); true }
@@ -284,7 +284,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         }
         val gone = others.keys.filter { it !in keep }
         for (k in gone) { map.overlays.remove(others.remove(k)) }
-        findViewById<TextView>(R.id.btnList).text = when (all.size) { 1 -> "1 sonda"; else -> "${all.size} sondas" }
+        findViewById<TextView>(R.id.btnList).text = resources.getQuantityString(R.plurals.sondes_count, all.size, all.size)
     }
 
     private fun updateMap() {
@@ -371,7 +371,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                     if (rec != null) { recoveries = rec; lastRecAt = System.currentTimeMillis() }
                     if (manual != null && list.none { it.serial == manual }) {
                         manualSerial = null
-                        Toast.makeText(this, "A sonda escolhida saiu do filtro; voltando ao automático.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, getString(R.string.chosen_left_filter), Toast.LENGTH_LONG).show()
                     }
                     emptyResult = nearest == null
                     if (nearest == null) { sonde = null; track = emptyList(); pred = null }
@@ -386,7 +386,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                     render(); updateMap()
                 }
             } catch (e: Exception) {
-                ui.post { netError = e.message ?: "erro de rede"; render() }
+                ui.post { netError = e.message ?: getString(R.string.network_error); render() }
             }
         }
     }
@@ -412,7 +412,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.any { it == PackageManager.PERMISSION_GRANTED }) startLocation()
-        else Toast.makeText(this, "Sem permissão de localização não é possível achar a sonda mais próxima.", Toast.LENGTH_LONG).show()
+        else Toast.makeText(this, getString(R.string.no_location_perm), Toast.LENGTH_LONG).show()
     }
 
     override fun onLocationChanged(location: Location) {
@@ -481,7 +481,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private fun txt(id: Int, s: CharSequence) { findViewById<TextView>(id).text = s }
 
     private fun cardinal(d: Double): String {
-        val n = arrayOf("N", "NE", "L", "SE", "S", "SO", "O", "NO")
+        val n = resources.getStringArray(R.array.cardinals8)
         return n[(((d % 360 + 360) % 360) / 45.0).roundToInt() % 8]
     }
 
@@ -490,11 +490,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private fun ageColor(sec: Long) = when { sec < 30 -> GREEN; sec < 120 -> AMBER; else -> RED }
 
     private fun ageText(sec: Long) = when {
-        sec < 90 -> "há $sec s"
-        sec < 90 * 60 -> "há ${sec / 60} min"
-        sec < 48 * 3600 -> String.format(BR, "há %.1f h", sec / 3600.0)
-        sec < 365L * 86400 -> "há ${sec / 86400} d"
-        else -> String.format(BR, "há %.1f anos", sec / (365.0 * 86400))
+        sec < 90 -> getString(R.string.ago_s, sec)
+        sec < 90 * 60 -> getString(R.string.ago_min, sec / 60)
+        sec < 48 * 3600 -> getString(R.string.ago_h, sec / 3600.0)
+        sec < 365L * 86400 -> getString(R.string.ago_d, sec / 86400)
+        else -> getString(R.string.ago_y, sec / (365.0 * 86400))
     }
 
     private fun etaSeconds(s: Sonde): Long? {
@@ -513,7 +513,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (s == null) return "—"
         if (s.velV.isNaN() || s.velV >= -0.5) return "—"
         val t = etaSeconds(s) ?: return "—"
-        return if (t < 60) "< 1 min" else "~${(t / 60.0).roundToInt()} min"
+        return if (t < 60) getString(R.string.lt_1min) else getString(R.string.approx_min, (t / 60.0).roundToInt())
     }
 
     private fun setDot(id: Int, color: Int) {
@@ -524,9 +524,9 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val s = sonde
         val live = findViewById<TextView>(R.id.liveText)
         when {
-            me == null -> { live.text = "Aguardando GPS"; setDot(R.id.liveDot, AMBER) }
-            netError != null -> { live.text = "Sem conexão"; setDot(R.id.liveDot, RED) }
-            else -> { live.text = "SondeHub ao vivo"; setDot(R.id.liveDot, GREEN) }
+            me == null -> { live.text = getString(R.string.waiting_gps); setDot(R.id.liveDot, AMBER) }
+            netError != null -> { live.text = getString(R.string.no_connection); setDot(R.id.liveDot, RED) }
+            else -> { live.text = getString(R.string.live); setDot(R.id.liveDot, GREEN) }
         }
         if (s == null || s.timeMs == 0L) {
             txt(R.id.age, "—"); txt(R.id.cAge, "—"); return
@@ -542,16 +542,16 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     private fun render() {
         txt(R.id.btnFilter, "$radiusKm km · ${windowLabel(windowH)}")
-        txt(R.id.modeLabel, if (manualSerial != null) "ESCOLHIDA MANUALMENTE" else "AUTOMÁTICO · MAIS RECENTE")
+        txt(R.id.modeLabel, getString(if (manualSerial != null) R.string.mode_manual else R.string.mode_auto))
         findViewById<View>(R.id.btnAuto).visibility = if (manualSerial != null) View.VISIBLE else View.GONE
         val s = sonde
         if (s == null) {
             txt(R.id.serial, "—"); txt(R.id.cSerial, "—")
             txt(R.id.stype, when {
-                me == null -> "aguardando GPS…"
-                netError != null -> "sem conexão com SondeHub"
-                emptyResult -> "nenhuma sonda em $radiusKm km (${windowLabel(windowH)})"
-                else -> "buscando…"
+                me == null -> getString(R.string.waiting_gps_lc)
+                netError != null -> getString(R.string.no_connection_sondehub)
+                emptyResult -> getString(R.string.no_sonde_in, radiusKm, windowLabel(windowH))
+                else -> getString(R.string.searching)
             })
             txt(R.id.cType, findViewById<TextView>(R.id.stype).text)
             txt(R.id.badge, "—")
@@ -560,7 +560,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             txt(R.id.via, ""); txt(R.id.cVv, "")
             findViewById<View>(R.id.warn).visibility = View.GONE
             findViewById<View>(R.id.cWarn).visibility = View.GONE
-            txt(R.id.chipBearing, if (me == null) "aguardando GPS" else "sem sonda")
+            txt(R.id.chipBearing, getString(if (me == null) R.string.waiting_gps_lc else R.string.no_sonde))
             txt(R.id.cBearing, "")
             compass.bearing = null
             renderSegment(); renderAge(); renderCompass()
@@ -575,28 +575,30 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val ageSec = (System.currentTimeMillis() - s.timeMs) / 1000
         val recv = recoveries[s.serial]
         txt(R.id.badge, when {
-            recv?.recovered == true -> "✓ RECUPERADA"
-            ageSec > 600 -> "SEM SINAL"
+            recv?.recovered == true -> getString(R.string.st_recovered)
+            ageSec > 600 -> getString(R.string.st_no_signal)
             s.velV.isNaN() -> "—"
-            s.velV < -1.0 -> "↓ DESCENDO"
-            s.velV > 1.0 -> "↑ SUBINDO"
-            ageSec > 300 -> "NO SOLO?"
-            else -> "ESTÁVEL"
+            s.velV < -1.0 -> getString(R.string.st_descending)
+            s.velV > 1.0 -> getString(R.string.st_ascending)
+            ageSec > 300 -> getString(R.string.st_landed)
+            else -> getString(R.string.st_stable)
         })
         findViewById<TextView>(R.id.badge).setTextColor(if (recv?.recovered == true) GREEN else Color.parseColor("#FFB07A"))
-        txt(R.id.via, if (s.uploader.isBlank()) "" else "via ${s.uploader}")
+        txt(R.id.via, if (s.uploader.isBlank()) "" else getString(R.string.via, s.uploader))
         // warnings: already recovered / signal lost high above ground
         val warns = ArrayList<String>()
         if (recv != null) {
-            warns.add(if (recv.recovered) "Já recuperada" + (if (recv.by.isNotBlank()) " por ${recv.by}" else "") +
-                (if (recv.description.isNotBlank()) ": ${recv.description}" else ".")
-            else "Relato de busca sem sucesso" + (if (recv.by.isNotBlank()) " (${recv.by})" else "") +
-                (if (recv.description.isNotBlank()) ": ${recv.description}" else "."))
+            val head = if (recv.recovered) {
+                if (recv.by.isNotBlank()) getString(R.string.recovered_by, recv.by) else getString(R.string.recovered)
+            } else {
+                if (recv.by.isNotBlank()) getString(R.string.failed_by, recv.by) else getString(R.string.failed)
+            }
+            warns.add(head + if (recv.description.isNotBlank()) ": ${recv.description}" else ".")
         }
         val myAlt = me?.takeIf { it.hasAltitude() }?.altitude
         if (ageSec > 600 && !s.alt.isNaN() && myAlt != null && s.alt - myAlt > 300) {
-            warns.add(String.format(BR, "Último pacote a %,.0f m acima de você: a sonda pode ter caído adiante%s.",
-                s.alt - myAlt, if (s.heading.isNaN()) "" else String.format(BR, ", no rumo %.0f° %s", s.heading, cardinal(s.heading))))
+            warns.add(getString(R.string.high_last, fmtAlt(s.alt - myAlt),
+                if (s.heading.isNaN()) "" else getString(R.string.along_heading, s.heading, cardinal(s.heading))))
         }
         for (id in listOf(R.id.warn, R.id.cWarn)) findViewById<TextView>(id).apply {
             text = warns.joinToString("\n"); visibility = if (warns.isEmpty()) View.GONE else View.VISIBLE
@@ -617,7 +619,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             Location.distanceBetween(u.latitude, u.longitude, s.lat, s.lon, r)
             var b = r[1].toDouble(); if (b < 0) b += 360
             txt(R.id.chipDist, fmtDist(r[0].toDouble()).let { "${it.first} ${it.second}" })
-            txt(R.id.chipBearing, String.format(BR, "%.0f° %s · da sua posição", b, cardinal(b)))
+            txt(R.id.chipBearing, getString(R.string.chip_bearing, b, cardinal(b)))
             findViewById<ImageView>(R.id.chipArrow).rotation = b.toFloat() - 45f // icon points NE by default
             if (!s.alt.isNaN()) {
                 val myAlt = if (u.hasAltitude()) u.altitude else 0.0
@@ -656,7 +658,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val color = if (targetLanding) WHITE else ACCENT
         compass.needleColor = color
         findViewById<TextView>(R.id.cCaption).apply {
-            text = if (targetLanding) "ATÉ O POUSO PREVISTO" else "ATÉ A ÚLTIMA POSIÇÃO RECEBIDA"
+            text = getString(if (targetLanding) R.string.to_landing else R.string.to_last_position)
             setTextColor(color)
         }
         if (tgt == null || u == null) {
@@ -674,19 +676,19 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (rel > 180) rel -= 360f
         if (rel < -180) rel += 360f
         val turn = when {
-            !haveHeading -> "sem bússola"
-            abs(rel) <= 5 -> "em frente"
-            else -> String.format(BR, "vire %.0f° à %s", abs(rel), if (rel > 0) "direita" else "esquerda")
+            !haveHeading -> getString(R.string.no_compass)
+            abs(rel) <= 5 -> getString(R.string.straight_ahead)
+            else -> getString(if (rel > 0) R.string.turn_right else R.string.turn_left, abs(rel))
         }
-        txt(R.id.cBearing, String.format(BR, "Rumo %.0f° %s · %s", b, cardinal(b), turn))
+        txt(R.id.cBearing, getString(R.string.bearing_line, b, cardinal(b), turn))
     }
 
     // ---------------------------------------------------------------- selection & filter
 
     private fun windowLabel(h: Int) = when {
-        h == 8760 -> "1 ano"
-        h % 24 == 0 && h >= 48 -> "${h / 24} d"
-        else -> "$h h"
+        h == 8760 -> getString(R.string.one_year)
+        h % 24 == 0 && h >= 48 -> getString(R.string.days_short, h / 24)
+        else -> getString(R.string.hours_short, h)
     }
 
     /** Pick a sonde by serial (manual), or null to go back to automatic (most recent). */
@@ -739,27 +741,27 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val hRow = LinearLayout(this)
         fun fill() {
             rRow.removeAllViews(); wRow.removeAllViews(); hRow.removeAllViews()
-            hRow.addView(chip("Mostrar todas", !hide) { hide = false; fill() })
-            hRow.addView(chip("Esconder recuperadas", hide) { hide = true; fill() })
+            hRow.addView(chip(getString(R.string.show_all), !hide) { hide = false; fill() })
+            hRow.addView(chip(getString(R.string.hide_recovered), hide) { hide = true; fill() })
             for (k in RADII_KM) rRow.addView(chip("$k km", k == r) { r = k; fill() })
             for (h in WINDOWS_H) wRow.addView(chip(windowLabel(h), h == w) { w = h; fill() })
         }
         fill()
-        box.addView(label("RAIO DE ALCANCE (a partir de você)"))
+        box.addView(label(getString(R.string.radius_label)))
         box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(rRow) })
-        box.addView(label("JANELA DE TEMPO (último pacote)"))
+        box.addView(label(getString(R.string.window_label)))
         box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(wRow) })
-        box.addView(label("JÁ RECUPERADAS (relatos no SondeHub)"))
+        box.addView(label(getString(R.string.recovered_label)))
         box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(hRow) })
         box.addView(TextView(this).apply {
-            text = "Janelas longas mostram também sondas que já caíram (posição do último pacote recebido)."
+            text = getString(R.string.long_window_hint)
             textSize = 12f; setTextColor(MUTED); setPadding(0, (14 * d).toInt(), 0, 0)
         })
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
-            .setTitle("Filtro de busca")
+            .setTitle(R.string.filter_title)
             .setView(box)
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Aplicar") { _, _ ->
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.apply) { _, _ ->
                 radiusKm = r; windowH = w; hideRecovered = hide; lastRecAt = 0
                 getSharedPreferences("cfg", MODE_PRIVATE).edit().putInt("radiusKm", r).putInt("windowH", w)
                     .putBoolean("hideRecovered", hide).apply()
@@ -774,14 +776,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     private fun showListDialog() {
         val u = me
-        if (all.isEmpty()) { Toast.makeText(this, "Nenhuma sonda no filtro atual.", Toast.LENGTH_SHORT).show(); return }
+        if (all.isEmpty()) { Toast.makeText(this, getString(R.string.no_sonde_filter), Toast.LENGTH_SHORT).show(); return }
         val res = FloatArray(1)
         val now = System.currentTimeMillis()
         val sorted = all.sortedBy {
             if (u == null) 0f else { Location.distanceBetween(u.latitude, u.longitude, it.lat, it.lon, res); res[0] }
         }
         val items = ArrayList<String>()
-        items.add((if (manualSerial == null) "● " else "") + "Automático (mais recente)")
+        items.add((if (manualSerial == null) "● " else "") + getString(R.string.auto_most_recent))
         for (o in sorted) {
             val dist = if (u == null) "" else {
                 Location.distanceBetween(u.latitude, u.longitude, o.lat, o.lon, res)
@@ -789,13 +791,13 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             }
             val mark = if (manualSerial == o.serial) "● " else ""
             val rv = recoveries[o.serial]
-            val tag = if (rv?.recovered == true) "  ·  ✓ recuperada" else if (rv != null) "  ·  ✗ não achada" else ""
+            val tag = if (rv?.recovered == true) "  ·  " + getString(R.string.tag_recovered) else if (rv != null) "  ·  " + getString(R.string.tag_not_found) else ""
             items.add("$mark${o.serial}  ·  $dist  ·  ${ageText((now - o.timeMs) / 1000)}  ·  ${fmtAlt(o.alt)}$tag")
         }
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
-            .setTitle("Escolher sonda para recuperar")
+            .setTitle(R.string.choose_title)
             .setItems(items.toTypedArray()) { _, i -> select(if (i == 0) null else sorted[i - 1].serial) }
-            .setNegativeButton("Fechar", null)
+            .setNegativeButton(R.string.close, null)
             .show()
     }
 
@@ -826,13 +828,13 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private fun updateDetectorLabel(d: Float?) {
         val b = findViewById<TextView>(R.id.btnDetector)
         if (!detectorOn) {
-            b.text = "Detector de proximidade: desligado"; b.setTextColor(WHITE); return
+            b.text = getString(R.string.detector_off); b.setTextColor(WHITE); return
         }
-        val acc = me?.takeIf { it.hasAccuracy() }?.let { String.format(BR, " · GPS ±%.0f m", it.accuracy) } ?: ""
+        val acc = me?.takeIf { it.hasAccuracy() }?.let { getString(R.string.gps_acc, it.accuracy) } ?: ""
         b.text = when {
-            d == null -> "Detector ligado · sem alvo"
-            d > 3000 -> "Detector ligado · alvo a mais de 3 km$acc"
-            else -> String.format(BR, "Detector ligado · %.0f m%s", d, acc)
+            d == null -> getString(R.string.detector_no_target)
+            d > 3000 -> getString(R.string.detector_far, acc)
+            else -> getString(R.string.detector_dist, d, acc)
         }
         b.setTextColor(when { d == null || d > 3000 -> MUTED; d < 50 -> GREEN; d < 300 -> AMBER; else -> ACCENT })
     }
@@ -863,7 +865,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val s = sonde ?: return
         val text = String.format(Locale.US, "%.6f, %.6f", s.lat, s.lon)
         (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(s.serial, text))
-        Toast.makeText(this, "Coordenadas copiadas", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.coords_copied), Toast.LENGTH_SHORT).show()
     }
 
     private fun navigate() {
@@ -871,6 +873,6 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val (lat, lon) = if (targetLanding) pred?.landing?.let { Pair(it.lat, it.lon) } ?: Pair(s.lat, s.lon) else Pair(s.lat, s.lon)
         val uri = Uri.parse(String.format(Locale.US, "geo:%.6f,%.6f?q=%.6f,%.6f(%s)", lat, lon, lat, lon, Uri.encode(s.serial)))
         try { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
-        catch (e: Exception) { Toast.makeText(this, "Nenhum app de navegação encontrado", Toast.LENGTH_SHORT).show() }
+        catch (e: Exception) { Toast.makeText(this, getString(R.string.no_nav_app), Toast.LENGTH_SHORT).show() }
     }
 }

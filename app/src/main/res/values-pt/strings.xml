@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connecting">Conectando…</string>
+    <string name="waiting_gps">Aguardando GPS</string>
+    <string name="waiting_gps_lc">aguardando GPS…</string>
+    <string name="no_connection">Sem conexão</string>
+    <string name="no_connection_sondehub">sem conexão com SondeHub</string>
+    <string name="live">SondeHub ao vivo</string>
+    <string name="no_sonde">sem sonda</string>
+    <string name="searching">buscando…</string>
+    <string name="zero_sondes">0 sondas</string>
+    <string name="center_desc">Centralizar em você e na sonda</string>
+    <string name="mode_auto">AUTOMÁTICO · MAIS RECENTE</string>
+    <string name="mode_manual">ESCOLHIDA MANUALMENTE</string>
+    <string name="back_to_auto">voltar ao auto</string>
+    <string name="last_packet">Último pacote</string>
+    <string name="last_position">Última posição</string>
+    <string name="copy_coords">Copiar coordenadas</string>
+    <string name="navigate_desc">Navegar até a sonda</string>
+    <string name="navigate">Navegar</string>
+    <string name="predicted_landing">Pouso previsto</string>
+    <string name="to_last_position">ATÉ A ÚLTIMA POSIÇÃO RECEBIDA</string>
+    <string name="to_landing">ATÉ O POUSO PREVISTO</string>
+    <string name="nav_map">Mapa</string>
+    <string name="nav_compass">Bússola</string>
+    <string name="altitude">Altitude</string>
+    <string name="vel_vertical">Vel. vertical</string>
+    <string name="vel_horizontal">Vel. horizontal</string>
+    <string name="heading_lbl">Rumo</string>
+    <string name="frequency">Frequência</string>
+    <string name="landing_in">Pouso em</string>
+    <string name="elevation">Elevação</string>
+    <string name="for_antenna">p/ a antena</string>
+    <string name="forecast">previsão</string>
+    <string name="tagline">Localize e resgate radiossondas</string>
+    <string name="you">Você</string>
+    <string name="chosen_left_filter">A sonda escolhida saiu do filtro; voltando ao automático.</string>
+    <string name="network_error">erro de rede</string>
+    <string name="no_location_perm">Sem permissão de localização não é possível achar a sonda mais próxima.</string>
+    <string name="ago_s">há %1$d s</string>
+    <string name="ago_min">há %1$d min</string>
+    <string name="ago_h">há %1$.1f h</string>
+    <string name="ago_d">há %1$d d</string>
+    <string name="ago_y">há %1$.1f anos</string>
+    <string name="lt_1min">&lt; 1 min</string>
+    <string name="approx_min">~%1$d min</string>
+    <string name="no_sonde_in">nenhuma sonda em %1$d km (%2$s)</string>
+    <string name="st_recovered">✓ RECUPERADA</string>
+    <string name="st_no_signal">SEM SINAL</string>
+    <string name="st_descending">↓ DESCENDO</string>
+    <string name="st_ascending">↑ SUBINDO</string>
+    <string name="st_landed">NO SOLO?</string>
+    <string name="st_stable">ESTÁVEL</string>
+    <string name="via">via %1$s</string>
+    <string name="recovered">Já recuperada</string>
+    <string name="recovered_by">Já recuperada por %1$s</string>
+    <string name="failed">Relato de busca sem sucesso</string>
+    <string name="failed_by">Relato de busca sem sucesso (%1$s)</string>
+    <string name="high_last">Último pacote a %1$s acima de você: a sonda pode ter caído adiante%2$s.</string>
+    <string name="along_heading">, no rumo %1$.0f° %2$s</string>
+    <string name="no_compass">sem bússola</string>
+    <string name="straight_ahead">em frente</string>
+    <string name="turn_right">vire %1$.0f° à direita</string>
+    <string name="turn_left">vire %1$.0f° à esquerda</string>
+    <string name="bearing_line">Rumo %1$.0f° %2$s · %3$s</string>
+    <string name="chip_bearing">%1$.0f° %2$s · da sua posição</string>
+    <string name="one_year">1 ano</string>
+    <string name="days_short">%1$d d</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="show_all">Mostrar todas</string>
+    <string name="hide_recovered">Esconder recuperadas</string>
+    <string name="radius_label">RAIO DE ALCANCE (a partir de você)</string>
+    <string name="window_label">JANELA DE TEMPO (último pacote)</string>
+    <string name="recovered_label">JÁ RECUPERADAS (relatos no SondeHub)</string>
+    <string name="long_window_hint">Janelas longas mostram também sondas que já caíram (posição do último pacote recebido).</string>
+    <string name="filter_title">Filtro de busca</string>
+    <string name="cancel">Cancelar</string>
+    <string name="apply">Aplicar</string>
+    <string name="close">Fechar</string>
+    <string name="no_sonde_filter">Nenhuma sonda no filtro atual.</string>
+    <string name="auto_most_recent">Automático (mais recente)</string>
+    <string name="tag_recovered">✓ recuperada</string>
+    <string name="tag_not_found">✗ não achada</string>
+    <string name="choose_title">Escolher sonda para recuperar</string>
+    <string name="detector_off">Detector de proximidade: desligado</string>
+    <string name="detector_no_target">Detector ligado · sem alvo</string>
+    <string name="detector_far">Detector ligado · alvo a mais de 3 km%1$s</string>
+    <string name="detector_dist">Detector ligado · %1$.0f m%2$s</string>
+    <string name="gps_acc">" · GPS ±%1$.0f m"</string>
+    <string name="coords_copied">Coordenadas copiadas</string>
+    <string name="no_nav_app">Nenhum app de navegação encontrado</string>
+    <plurals name="sondes_count">
+        <item quantity="one">%d sonda</item>
+        <item quantity="many">%d sondas</item>
+        <item quantity="other">%d sondas</item>
+    </plurals>
+    <string-array name="cardinals8">
+        <item>N</item>
+        <item>NE</item>
+        <item>L</item>
+        <item>SE</item>
+        <item>S</item>
+        <item>SO</item>
+        <item>O</item>
+        <item>NO</item>
+    </string-array>
+    <string-array name="cardinals4">
+        <item>N</item>
+        <item>L</item>
+        <item>S</item>
+        <item>O</item>
+    </string-array>
+</resources>

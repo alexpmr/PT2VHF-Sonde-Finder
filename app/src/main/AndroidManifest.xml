@@ -12,7 +12,8 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
-        android:supportsRtl="false">
+        android:supportsRtl="false"
+        android:localeConfig="@xml/locales_config">
         <activity
             android:name=".SplashActivity"
             android:exported="true"

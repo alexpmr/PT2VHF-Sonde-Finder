@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connecting">Connessione…</string>
+    <string name="waiting_gps">In attesa del GPS</string>
+    <string name="waiting_gps_lc">in attesa del GPS…</string>
+    <string name="no_connection">Nessuna connessione</string>
+    <string name="no_connection_sondehub">nessuna connessione a SondeHub</string>
+    <string name="live">SondeHub dal vivo</string>
+    <string name="no_sonde">nessuna sonda</string>
+    <string name="searching">ricerca…</string>
+    <string name="zero_sondes">0 sonde</string>
+    <string name="center_desc">Centra su di te e sulla sonda</string>
+    <string name="mode_auto">AUTOMATICO · PIÙ RECENTE</string>
+    <string name="mode_manual">SCELTA MANUALMENTE</string>
+    <string name="back_to_auto">torna ad auto</string>
+    <string name="last_packet">Ultimo pacchetto</string>
+    <string name="last_position">Ultima posizione</string>
+    <string name="copy_coords">Copia coordinate</string>
+    <string name="navigate_desc">Naviga verso la sonda</string>
+    <string name="navigate">Naviga</string>
+    <string name="predicted_landing">Atterraggio previsto</string>
+    <string name="to_last_position">VERSO L\'ULTIMA POSIZIONE RICEVUTA</string>
+    <string name="to_landing">VERSO L\'ATTERRAGGIO PREVISTO</string>
+    <string name="nav_map">Mappa</string>
+    <string name="nav_compass">Bussola</string>
+    <string name="altitude">Altitudine</string>
+    <string name="vel_vertical">Vel. verticale</string>
+    <string name="vel_horizontal">Vel. orizzontale</string>
+    <string name="heading_lbl">Rotta</string>
+    <string name="frequency">Frequenza</string>
+    <string name="landing_in">Atterra tra</string>
+    <string name="elevation">Elevazione</string>
+    <string name="for_antenna">per l\'antenna</string>
+    <string name="forecast">previsione</string>
+    <string name="tagline">Trova e recupera radiosonde</string>
+    <string name="you">Tu</string>
+    <string name="chosen_left_filter">La sonda scelta è uscita dal filtro; torno in automatico.</string>
+    <string name="network_error">errore di rete</string>
+    <string name="no_location_perm">Senza permesso di posizione non è possibile trovare la sonda più vicina.</string>
+    <string name="ago_s">%1$d s fa</string>
+    <string name="ago_min">%1$d min fa</string>
+    <string name="ago_h">%1$.1f h fa</string>
+    <string name="ago_d">%1$d g fa</string>
+    <string name="ago_y">%1$.1f anni fa</string>
+    <string name="lt_1min">&lt; 1 min</string>
+    <string name="approx_min">~%1$d min</string>
+    <string name="no_sonde_in">nessuna sonda entro %1$d km (%2$s)</string>
+    <string name="st_recovered">✓ RECUPERATA</string>
+    <string name="st_no_signal">NESSUN SEGNALE</string>
+    <string name="st_descending">↓ IN DISCESA</string>
+    <string name="st_ascending">↑ IN SALITA</string>
+    <string name="st_landed">A TERRA?</string>
+    <string name="st_stable">STABILE</string>
+    <string name="via">via %1$s</string>
+    <string name="recovered">Già recuperata</string>
+    <string name="recovered_by">Già recuperata da %1$s</string>
+    <string name="failed">Ricerca senza successo segnalata</string>
+    <string name="failed_by">Ricerca senza successo segnalata da %1$s</string>
+    <string name="high_last">Ultimo pacchetto %1$s sopra di te: la sonda potrebbe essere caduta più avanti%2$s.</string>
+    <string name="along_heading">, in rotta %1$.0f° %2$s</string>
+    <string name="no_compass">nessuna bussola</string>
+    <string name="straight_ahead">dritto</string>
+    <string name="turn_right">gira di %1$.0f° a destra</string>
+    <string name="turn_left">gira di %1$.0f° a sinistra</string>
+    <string name="bearing_line">Direzione %1$.0f° %2$s · %3$s</string>
+    <string name="chip_bearing">%1$.0f° %2$s · dalla tua posizione</string>
+    <string name="one_year">1 anno</string>
+    <string name="days_short">%1$d g</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="show_all">Mostra tutte</string>
+    <string name="hide_recovered">Nascondi recuperate</string>
+    <string name="radius_label">RAGGIO DI RICERCA (da te)</string>
+    <string name="window_label">FINESTRA TEMPORALE (ultimo pacchetto)</string>
+    <string name="recovered_label">GIÀ RECUPERATE (segnalazioni SondeHub)</string>
+    <string name="long_window_hint">Le finestre lunghe mostrano anche le sonde già cadute (posizione dell\'ultimo pacchetto ricevuto).</string>
+    <string name="filter_title">Filtro di ricerca</string>
+    <string name="cancel">Annulla</string>
+    <string name="apply">Applica</string>
+    <string name="close">Chiudi</string>
+    <string name="no_sonde_filter">Nessuna sonda nel filtro attuale.</string>
+    <string name="auto_most_recent">Automatico (più recente)</string>
+    <string name="tag_recovered">✓ recuperata</string>
+    <string name="tag_not_found">✗ non trovata</string>
+    <string name="choose_title">Scegli la sonda da recuperare</string>
+    <string name="detector_off">Rilevatore di prossimità: spento</string>
+    <string name="detector_no_target">Rilevatore acceso · nessun obiettivo</string>
+    <string name="detector_far">Rilevatore acceso · obiettivo oltre 3 km%1$s</string>
+    <string name="detector_dist">Rilevatore acceso · %1$.0f m%2$s</string>
+    <string name="gps_acc">" · GPS ±%1$.0f m"</string>
+    <string name="coords_copied">Coordinate copiate</string>
+    <string name="no_nav_app">Nessuna app di navigazione trovata</string>
+    <plurals name="sondes_count">
+        <item quantity="one">%d sonda</item>
+        <item quantity="many">%d sonde</item>
+        <item quantity="other">%d sonde</item>
+    </plurals>
+    <string-array name="cardinals8">
+        <item>N</item>
+        <item>NE</item>
+        <item>E</item>
+        <item>SE</item>
+        <item>S</item>
+        <item>SO</item>
+        <item>O</item>
+        <item>NO</item>
+    </string-array>
+    <string-array name="cardinals4">
+        <item>N</item>
+        <item>E</item>
+        <item>S</item>
+        <item>O</item>
+    </string-array>
+</resources>

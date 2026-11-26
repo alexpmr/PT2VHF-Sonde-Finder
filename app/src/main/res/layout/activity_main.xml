@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -113,6 +114,7 @@
 
                 <org.maplibre.android.maps.MapView
                     android:id="@+id/map"
+                    app:maplibre_renderTextureMode="true"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
@@ -221,6 +223,16 @@
                         android:background="@drawable/bg_overlay_btn"
                         android:contentDescription="@string/detector_desc"
                         android:src="@drawable/ic_sound"
+                        android:tint="@color/text" />
+
+                    <ImageButton
+                        android:id="@+id/btnMapStyle"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_overlay_btn"
+                        android:contentDescription="@string/map_settings_title"
+                        android:src="@drawable/ic_brightness"
                         android:tint="@color/text" />
                 </LinearLayout>
 

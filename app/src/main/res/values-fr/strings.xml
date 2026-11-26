@@ -146,4 +146,11 @@
     <string name="offset_suffix">" · corr. %1$+.0f°"</string>
     <string name="hmode_compass">Cap : boussole du téléphone · touchez pour changer</string>
     <string name="hmode_gps">Cap : GPS en mouvement (voiture) · touchez pour changer</string>
+    <string name="map_settings_title">Carte</string>
+    <string name="map_style_label">STYLE DE CARTE</string>
+    <string name="map_brightness_label">LUMINOSITÉ</string>
+    <string name="style_dark">Sombre</string>
+    <string name="style_fiord">Bleu sombre</string>
+    <string name="style_positron">Clair</string>
+    <string name="style_liberty">Coloré</string>
 </resources>

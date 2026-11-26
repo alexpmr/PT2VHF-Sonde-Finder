@@ -146,4 +146,11 @@
     <string name="offset_suffix">" · adj. %1$+.0f°"</string>
     <string name="hmode_compass">Heading: phone compass · tap to change</string>
     <string name="hmode_gps">Heading: GPS while moving (car) · tap to change</string>
+    <string name="map_settings_title">Map</string>
+    <string name="map_style_label">MAP STYLE</string>
+    <string name="map_brightness_label">BRIGHTNESS</string>
+    <string name="style_dark">Dark</string>
+    <string name="style_fiord">Dark blue</string>
+    <string name="style_positron">Light</string>
+    <string name="style_liberty">Colorful</string>
 </resources>

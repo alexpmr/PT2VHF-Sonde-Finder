@@ -147,4 +147,11 @@
     <string name="offset_suffix">" · kor. %1$+.0f°"</string>
     <string name="hmode_compass">Kurs: kompas telefonu · dotknij, aby zmienić</string>
     <string name="hmode_gps">Kurs: GPS w ruchu (samochód) · dotknij, aby zmienić</string>
+    <string name="map_settings_title">Mapa</string>
+    <string name="map_style_label">STYL MAPY</string>
+    <string name="map_brightness_label">JASNOŚĆ</string>
+    <string name="style_dark">Ciemny</string>
+    <string name="style_fiord">Ciemnoniebieski</string>
+    <string name="style_positron">Jasny</string>
+    <string name="style_liberty">Kolorowy</string>
 </resources>

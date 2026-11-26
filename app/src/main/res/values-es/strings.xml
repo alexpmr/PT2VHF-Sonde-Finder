@@ -146,4 +146,11 @@
     <string name="offset_suffix">" · ajuste %1$+.0f°"</string>
     <string name="hmode_compass">Rumbo: brújula del teléfono · toque para cambiar</string>
     <string name="hmode_gps">Rumbo: GPS en movimiento (auto) · toque para cambiar</string>
+    <string name="map_settings_title">Mapa</string>
+    <string name="map_style_label">ESTILO DEL MAPA</string>
+    <string name="map_brightness_label">BRILLO</string>
+    <string name="style_dark">Oscuro</string>
+    <string name="style_fiord">Oscuro azulado</string>
+    <string name="style_positron">Claro</string>
+    <string name="style_liberty">Colorido</string>
 </resources>

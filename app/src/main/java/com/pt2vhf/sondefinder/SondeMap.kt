@@ -44,7 +44,8 @@ import kotlin.math.roundToInt
  * user, heading beam) lives in GeoJSON sources + layers on top of the base style.
  * State set before the style finishes loading is kept and applied when it is ready.
  */
-class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundle?) {
+class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundle?,
+               private var styleName: String, private var brightness: Int) {
 
     enum class Kind { LIVE, OLD, RECOVERED }
     data class Other(val serial: String, val lat: Double, val lon: Double, val kind: Kind)
@@ -89,12 +90,14 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
             m.cameraPosition = CameraPosition.Builder().target(LatLng(-15.79, -47.88)).zoom(4.0).build()
             m.addOnCameraMoveListener { onBearing?.invoke(m.cameraPosition.bearing.toFloat()) }
             m.addOnMapClickListener { p -> click(m, p) }
-            m.setStyle(Style.Builder().fromUri(STYLE_DARK)) { onStyle(it) }
+            m.setStyle(Style.Builder().fromUri(styleUrl(styleName))) { onStyle(it) }
+            applyBrightness()
         }
     }
 
     companion object {
-        const val STYLE_DARK = "https://tiles.openfreemap.org/styles/dark"
+        val STYLES = listOf("dark", "fiord", "positron", "liberty")
+        fun styleUrl(name: String) = "https://tiles.openfreemap.org/styles/" + (if (name in STYLES) name else "dark")
         const val STYLE_FALLBACK = "https://tiles.openfreemap.org/styles/liberty"
         private const val ACCENT = "#FF8A3D"
         private const val BLUE = "#4DA3FF"
@@ -121,6 +124,42 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
         coneHeading = heading; coneNarrow = narrow
         val st = style ?: return
         st.getSourceAs<GeoJsonSource>("cone")?.setGeoJson(coneFc())
+    }
+
+    fun setStyleName(name: String) {
+        if (name == styleName) return
+        styleName = name; style = null; triedFallback = false
+        map?.setStyle(Style.Builder().fromUri(styleUrl(name))) { onStyle(it) }
+    }
+
+    /**
+     * Brightness -50..+50 applied to the rendered map image (TextureView layer paint):
+     * positive lifts dark tones, negative dims. Needs texture render mode (set in the layout).
+     */
+    fun setBrightness(v: Int) { brightness = v; applyBrightness() }
+
+    private fun applyBrightness() {
+        val tv = findTexture(view) ?: run { view.postDelayed({ findTexture(view)?.let { applyTo(it) } }, 500); return }
+        applyTo(tv)
+    }
+
+    private fun applyTo(tv: android.view.TextureView) {
+        val v = brightness.coerceIn(-50, 50)
+        if (v == 0) { tv.setLayerPaint(null); return }
+        val scale = 1f + v * 0.006f
+        val offset = if (v > 0) v * 1.4f else 0f
+        val cm = android.graphics.ColorMatrix(floatArrayOf(
+            scale, 0f, 0f, 0f, offset,
+            0f, scale, 0f, 0f, offset,
+            0f, 0f, scale, 0f, offset,
+            0f, 0f, 0f, 1f, 0f))
+        tv.setLayerPaint(Paint().apply { colorFilter = android.graphics.ColorMatrixColorFilter(cm) })
+    }
+
+    private fun findTexture(v: android.view.View): android.view.TextureView? {
+        if (v is android.view.TextureView) return v
+        if (v is android.view.ViewGroup) for (i in 0 until v.childCount) findTexture(v.getChildAt(i))?.let { return it }
+        return null
     }
 
     val bearing: Float get() = map?.cameraPosition?.bearing?.toFloat() ?: 0f

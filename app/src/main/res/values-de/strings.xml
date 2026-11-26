@@ -145,4 +145,11 @@
     <string name="offset_suffix">" · Korr. %1$+.0f°"</string>
     <string name="hmode_compass">Kurs: Kompass des Telefons · tippen zum Ändern</string>
     <string name="hmode_gps">Kurs: GPS in Bewegung (Auto) · tippen zum Ändern</string>
+    <string name="map_settings_title">Karte</string>
+    <string name="map_style_label">KARTENSTIL</string>
+    <string name="map_brightness_label">HELLIGKEIT</string>
+    <string name="style_dark">Dunkel</string>
+    <string name="style_fiord">Dunkelblau</string>
+    <string name="style_positron">Hell</string>
+    <string name="style_liberty">Farbig</string>
 </resources>

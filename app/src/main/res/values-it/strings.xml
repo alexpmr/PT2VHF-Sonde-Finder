@@ -146,4 +146,11 @@
     <string name="offset_suffix">" · corr. %1$+.0f°"</string>
     <string name="hmode_compass">Rotta: bussola del telefono · tocca per cambiare</string>
     <string name="hmode_gps">Rotta: GPS in movimento (auto) · tocca per cambiare</string>
+    <string name="map_settings_title">Mappa</string>
+    <string name="map_style_label">STILE MAPPA</string>
+    <string name="map_brightness_label">LUMINOSITÀ</string>
+    <string name="style_dark">Scuro</string>
+    <string name="style_fiord">Blu scuro</string>
+    <string name="style_positron">Chiaro</string>
+    <string name="style_liberty">Colorato</string>
 </resources>

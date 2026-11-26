@@ -120,6 +120,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             mapHeadingUp = it.getBoolean("mapHeadingUp", false)
             compassOffset = it.getFloat("compassOffset", 0f)
             gpsWhenMoving = it.getBoolean("gpsWhenMoving", false)
+            mapStyle = it.getString("mapStyle", "dark") ?: "dark"
+            mapBrightness = it.getInt("mapBrightness", 0)
         }
         setupMap(savedInstanceState)
         if (mapHeadingUp) ui.postDelayed({ setMapHeadingUp(true, false) }, 1000)
@@ -188,7 +190,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     // ---------------------------------------------------------------- map
 
     private fun setupMap(saved: Bundle?) {
-        map = SondeMap(this, findViewById<MapView>(R.id.map), saved)
+        map = SondeMap(this, findViewById<MapView>(R.id.map), saved, mapStyle, mapBrightness)
+        findViewById<View>(R.id.btnMapStyle).setOnClickListener { showMapSettings() }
         map.onOtherClick = { serial -> select(serial) }
         map.onSelectedClick = { showCompass(true) }
         map.onLandingClick = { targetLanding = true; showCompass(true) }
@@ -475,6 +478,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     /** false: always the phone's compass (needle follows where the phone points).
      *  true: GPS course while moving (phone fixed in a car mount, avoids magnetic interference). */
     private var gpsWhenMoving = false
+    private var mapStyle = "dark"
+    private var mapBrightness = 0
 
     /**
      * Rotation vector only when the phone has a gyroscope; many phones without one expose no
@@ -767,6 +772,68 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             }
             setOnClickListener { click() }
         }
+    }
+
+    private fun showMapSettings() {
+        val d = resources.displayMetrics.density
+        var st = mapStyle
+        val startBrightness = mapBrightness
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((20 * d).toInt(), (8 * d).toInt(), (20 * d).toInt(), 0)
+        }
+        fun label(t: String) = TextView(this).apply {
+            text = t; textSize = 12f; setTextColor(MUTED); letterSpacing = 0.08f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
+        }
+        val names = mapOf("dark" to R.string.style_dark, "fiord" to R.string.style_fiord,
+            "positron" to R.string.style_positron, "liberty" to R.string.style_liberty)
+        val row = LinearLayout(this)
+        fun fill() {
+            row.removeAllViews()
+            for ((k, r) in names) row.addView(chip(getString(r), k == st) { st = k; map.setStyleName(k); fill() })
+        }
+        fill()
+        val value = TextView(this).apply { setTextColor(WHITE); textSize = 13f }
+        fun showValue(v: Int) { value.text = if (v == 0) "0" else String.format(BR, "%+d", v) }
+        showValue(mapBrightness)
+        val seek = android.widget.SeekBar(this).apply {
+            max = 100; progress = mapBrightness + 50
+            setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: android.widget.SeekBar?, p: Int, fromUser: Boolean) {
+                    mapBrightness = p - 50; showValue(mapBrightness); map.setBrightness(mapBrightness)
+                }
+                override fun onStartTrackingTouch(sb: android.widget.SeekBar?) {}
+                override fun onStopTrackingTouch(sb: android.widget.SeekBar?) {}
+            })
+        }
+        box.addView(label(getString(R.string.map_style_label)))
+        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(row) })
+        box.addView(label(getString(R.string.map_brightness_label)))
+        box.addView(LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(seek, LinearLayout.LayoutParams(0, (44 * d).toInt(), 1f))
+            addView(value)
+        })
+        val original = mapStyle
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.map_settings_title)
+            .setView(box)
+            .setNegativeButton(R.string.cancel) { _, _ ->
+                mapBrightness = startBrightness; map.setBrightness(startBrightness); map.setStyleName(original)
+            }
+            .setNeutralButton(R.string.align_reset) { _, _ ->
+                mapBrightness = 0; map.setBrightness(0); saveMapSettings(st)
+            }
+            .setPositiveButton(R.string.apply) { _, _ -> saveMapSettings(st) }
+            .show()
+    }
+
+    private fun saveMapSettings(style: String) {
+        mapStyle = style
+        getSharedPreferences("cfg", MODE_PRIVATE).edit()
+            .putString("mapStyle", style).putInt("mapBrightness", mapBrightness).apply()
     }
 
     private fun showFilterDialog() {

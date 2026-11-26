@@ -51,11 +51,13 @@ object UpdateManager {
 
     private fun latest(): Pkg? {
         val c = connect(CATALOG)
+        // Network failure -> exception ("site unavailable"). The site answering without a
+        // valid Sonde Finder entry (product not published yet) -> null ("no published version").
         val body = try {
-            if (c.responseCode != 200) throw IOException("HTTP " + c.responseCode)
+            if (c.responseCode != 200) return null
             c.inputStream.bufferedReader().use { it.readText() }
         } finally { c.disconnect() }
-        val doc = JSONObject(body)
+        val doc = try { JSONObject(body) } catch (_: Exception) { return null }
         if (doc.optInt("schema") != 1 || doc.optString("product") != "sonde" ||
             doc.optString("status") != "available") return null
         val version = doc.optString("version")

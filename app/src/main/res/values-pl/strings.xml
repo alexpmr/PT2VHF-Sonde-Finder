@@ -84,7 +84,7 @@
     <string name="choose_title">Wybierz sondę do odzyskania</string>
     <string name="detector_off">Detektor zbliżenia: wyłączony</string>
     <string name="detector_no_target">Detektor włączony · brak celu</string>
-    <string name="detector_far">Detektor włączony · cel dalej niż 3 km%1$s</string>
+    <string name="detector_far">Detektor włączony · cel dalej niż 5 km%1$s</string>
     <string name="detector_dist">Detektor włączony · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Skopiowano współrzędne</string>
@@ -136,4 +136,13 @@
     <string name="upd_perm_msg">Zezwól na instalowanie aplikacji z tego źródła i ponownie sprawdź aktualizacje.</string>
     <string name="upd_settings">Ustawienia</string>
     <string name="upd_failed">Nie udało się pobrać aktualizacji: %1$s</string>
+    <string name="detector_desc">Detektor zbliżenia (dźwięk Geigera)</string>
+    <string name="detector_on_toast">Detektor włączony: kliknięcia przyspieszają, gdy się zbliżasz</string>
+    <string name="align_title">Wyrównaj kompas</string>
+    <string name="align_msg">Kompas wskazuje teraz %1$.0f° (korekta %2$+.0f°).\n\nAby wyrównać: skieruj telefon (górą, lub tyłem gdy jest pionowo) dokładnie na północ według kompasu wzorcowego i dotknij Wyrównaj na północ. Użyj Odwróć 180°, jeśli wszystko jest odwrotnie.</string>
+    <string name="align_now">Wyrównaj na północ</string>
+    <string name="align_flip">Odwróć 180°</string>
+    <string name="align_reset">Zeruj</string>
+    <string name="align_done">Korekta kompasu: %1$+.0f°</string>
+    <string name="offset_suffix">" · kor. %1$+.0f°"</string>
 </resources>

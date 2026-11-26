@@ -84,7 +84,7 @@
     <string name="choose_title">Choisir une sonde à récupérer</string>
     <string name="detector_off">Détecteur de proximité : désactivé</string>
     <string name="detector_no_target">Détecteur activé · aucune cible</string>
-    <string name="detector_far">Détecteur activé · cible à plus de 3 km%1$s</string>
+    <string name="detector_far">Détecteur activé · cible à plus de 5 km%1$s</string>
     <string name="detector_dist">Détecteur activé · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Coordonnées copiées</string>
@@ -135,4 +135,13 @@
     <string name="upd_perm_msg">Autorisez l\'installation d\'apps depuis cette source, puis relancez la recherche.</string>
     <string name="upd_settings">Paramètres</string>
     <string name="upd_failed">Échec du téléchargement : %1$s</string>
+    <string name="detector_desc">Détecteur de proximité (son Geiger)</string>
+    <string name="detector_on_toast">Détecteur activé : les clics accélèrent à l\'approche</string>
+    <string name="align_title">Ajuster la boussole</string>
+    <string name="align_msg">Votre boussole indique %1$.0f° (correction %2$+.0f°).\n\nPour aligner : pointez le téléphone (le haut, ou le dos s\'il est vertical) exactement vers le nord avec une boussole de référence, puis touchez Aligner nord. Utilisez Inverser 180° si tout est à l\'envers.</string>
+    <string name="align_now">Aligner nord</string>
+    <string name="align_flip">Inverser 180°</string>
+    <string name="align_reset">Réinitialiser</string>
+    <string name="align_done">Correction boussole : %1$+.0f°</string>
+    <string name="offset_suffix">" · corr. %1$+.0f°"</string>
 </resources>

@@ -84,7 +84,7 @@
     <string name="choose_title">Escolher sonda para recuperar</string>
     <string name="detector_off">Detector de proximidade: desligado</string>
     <string name="detector_no_target">Detector ligado · sem alvo</string>
-    <string name="detector_far">Detector ligado · alvo a mais de 3 km%1$s</string>
+    <string name="detector_far">Detector ligado · alvo a mais de 5 km%1$s</string>
     <string name="detector_dist">Detector ligado · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Coordenadas copiadas</string>
@@ -135,4 +135,13 @@
     <string name="upd_perm_msg">Permita instalar apps desta fonte e depois verifique as atualizações de novo.</string>
     <string name="upd_settings">Configurações</string>
     <string name="upd_failed">Falha ao baixar a atualização: %1$s</string>
+    <string name="detector_desc">Detector de proximidade (som Geiger)</string>
+    <string name="detector_on_toast">Detector ligado: os cliques aceleram conforme você se aproxima</string>
+    <string name="align_title">Ajustar bússola</string>
+    <string name="align_msg">Sua bússola marca agora %1$.0f° (ajuste %2$+.0f°).\n\nPara alinhar: aponte o celular (o topo, ou a traseira se estiver em pé) exatamente para o norte, usando uma bússola de referência, e toque em Alinhar norte. Use Inverter 180° se estiver tudo ao contrário.</string>
+    <string name="align_now">Alinhar norte</string>
+    <string name="align_flip">Inverter 180°</string>
+    <string name="align_reset">Zerar</string>
+    <string name="align_done">Ajuste da bússola: %1$+.0f°</string>
+    <string name="offset_suffix">" · ajuste %1$+.0f°"</string>
 </resources>

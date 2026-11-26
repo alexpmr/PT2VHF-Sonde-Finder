@@ -84,7 +84,7 @@
     <string name="choose_title">Sonde zum Bergen wählen</string>
     <string name="detector_off">Näherungsdetektor: aus</string>
     <string name="detector_no_target">Detektor an · kein Ziel</string>
-    <string name="detector_far">Detektor an · Ziel über 3 km entfernt%1$s</string>
+    <string name="detector_far">Detektor an · Ziel über 5 km entfernt%1$s</string>
     <string name="detector_dist">Detektor an · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Koordinaten kopiert</string>
@@ -134,4 +134,13 @@
     <string name="upd_perm_msg">Erlaube die Installation aus dieser Quelle und suche dann erneut nach Updates.</string>
     <string name="upd_settings">Einstellungen</string>
     <string name="upd_failed">Update-Download fehlgeschlagen: %1$s</string>
+    <string name="detector_desc">Näherungsdetektor (Geiger-Ton)</string>
+    <string name="detector_on_toast">Detektor an: das Klicken wird schneller, je näher du kommst</string>
+    <string name="align_title">Kompass ausrichten</string>
+    <string name="align_msg">Dein Kompass zeigt %1$.0f° (Korrektur %2$+.0f°).\n\nZum Ausrichten das Telefon (Oberkante bzw. Rückseite, wenn aufrecht) mit einem Referenzkompass genau nach Norden halten und auf Norden ausrichten tippen. Mit 180° drehen, wenn alles verkehrt ist.</string>
+    <string name="align_now">Norden ausrichten</string>
+    <string name="align_flip">180° drehen</string>
+    <string name="align_reset">Zurücksetzen</string>
+    <string name="align_done">Kompasskorrektur: %1$+.0f°</string>
+    <string name="offset_suffix">" · Korr. %1$+.0f°"</string>
 </resources>

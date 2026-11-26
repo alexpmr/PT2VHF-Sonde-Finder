@@ -85,7 +85,7 @@
     <string name="choose_title">Choose a sonde to recover</string>
     <string name="detector_off">Proximity detector: off</string>
     <string name="detector_no_target">Detector on · no target</string>
-    <string name="detector_far">Detector on · target over 3 km away%1$s</string>
+    <string name="detector_far">Detector on · target over 5 km away%1$s</string>
     <string name="detector_dist">Detector on · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Coordinates copied</string>
@@ -135,4 +135,13 @@
     <string name="upd_perm_msg">Allow installing apps from this source, then check for updates again.</string>
     <string name="upd_settings">Settings</string>
     <string name="upd_failed">Update download failed: %1$s</string>
+    <string name="detector_desc">Proximity detector (Geiger sound)</string>
+    <string name="detector_on_toast">Detector on: clicks speed up as you get closer</string>
+    <string name="align_title">Align compass</string>
+    <string name="align_msg">Your compass now reads %1$.0f° (adjustment %2$+.0f°).\n\nTo align: point the phone (its top, or its back if held upright) exactly north, using a reference compass, and tap Align north. Use Flip 180° if everything is reversed.</string>
+    <string name="align_now">Align north</string>
+    <string name="align_flip">Flip 180°</string>
+    <string name="align_reset">Reset</string>
+    <string name="align_done">Compass adjustment: %1$+.0f°</string>
+    <string name="offset_suffix">" · adj. %1$+.0f°"</string>
 </resources>

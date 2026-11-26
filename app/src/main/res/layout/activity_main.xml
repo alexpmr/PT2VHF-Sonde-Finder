@@ -212,6 +212,16 @@
                         android:background="@drawable/bg_overlay_btn"
                         android:contentDescription="@string/map_orientation_desc"
                         android:src="@drawable/ic_north" />
+
+                    <ImageButton
+                        android:id="@+id/btnSound"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_overlay_btn"
+                        android:contentDescription="@string/detector_desc"
+                        android:src="@drawable/ic_sound"
+                        android:tint="@color/text" />
                 </LinearLayout>
 
                 <ImageButton

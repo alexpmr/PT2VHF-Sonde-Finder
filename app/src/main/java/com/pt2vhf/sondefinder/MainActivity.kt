@@ -61,6 +61,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val WINDOWS_H = intArrayOf(1, 3, 6, 12, 24, 48, 168, 360, 720, 2160, 4320, 8760)
         const val POLL_MS = 10_000L       // nearby poll interval (be gentle with SondeHub)
         const val DETAIL_MS = 30_000L     // track / prediction refresh
+        const val DETECT_MAX_M = 5000f    // detector starts clicking at 5 km
         val ACCENT = Color.parseColor("#FF8A3D")
         val BLUE = Color.parseColor("#4DA3FF")
         val WHITE = Color.parseColor("#E8EDF1")
@@ -139,10 +140,16 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             radiusKm = it.getInt("radiusKm", 100); windowH = it.getInt("windowH", 6)
             hideRecovered = it.getBoolean("hideRecovered", false)
             mapHeadingUp = it.getBoolean("mapHeadingUp", false)
+            compassOffset = it.getFloat("compassOffset", 0f)
         }
         setupMap()
         if (mapHeadingUp) map.post { setMapHeadingUp(true, false) }
         compass = findViewById(R.id.compass)
+        compass.setOnLongClickListener { showAlignDialog(); true }
+        findViewById<View>(R.id.btnSound).setOnClickListener {
+            setDetector(!detectorOn)
+            Toast.makeText(this, if (detectorOn) R.string.detector_on_toast else R.string.detector_off, Toast.LENGTH_SHORT).show()
+        }
         findViewById<View>(R.id.btnFilter).setOnClickListener { showFilterDialog() }
         findViewById<View>(R.id.btnList).setOnClickListener { showListDialog() }
         findViewById<View>(R.id.btnAuto).setOnClickListener { select(null) }
@@ -479,7 +486,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         me?.let {
             az += GeomagneticField(it.latitude.toFloat(), it.longitude.toFloat(), it.altitude.toFloat(), System.currentTimeMillis()).declination
         }
-        magHeading = (az + 360f) % 360f
+        rawMag = (az + 360f) % 360f
+        magHeading = (rawMag + compassOffset + 720f) % 360f
         haveMag = true
         updateHeading()
     }
@@ -547,6 +555,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var haveGeo = false
     private var calibrationHintShown = false
     private var compassSensor = true
+    private var rawMag = 0f
+    private var compassOffset = 0f
 
     /**
      * Rotation vector only when the phone has a gyroscope; many phones without one expose no
@@ -796,7 +806,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             else -> getString(if (rel > 0) R.string.turn_right else R.string.turn_left, abs(rel))
         }
         txt(R.id.cBearing, getString(R.string.bearing_line, b, cardinal(b), turn) +
-            if (!haveHeading) "" else getString(if (headingFromGps) R.string.heading_src_gps else R.string.heading_src_mag, heading))
+            if (!haveHeading) "" else getString(if (headingFromGps) R.string.heading_src_gps else R.string.heading_src_mag, heading) +
+                if (headingFromGps || compassOffset == 0f) "" else getString(R.string.offset_suffix, compassOffset))
     }
 
     // ---------------------------------------------------------------- selection & filter
@@ -942,6 +953,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     private fun updateDetectorLabel(d: Float?) {
+        findViewById<ImageView>(R.id.btnSound).setColorFilter(if (detectorOn) ACCENT else WHITE)
         val b = findViewById<TextView>(R.id.btnDetector)
         if (!detectorOn) {
             b.text = getString(R.string.detector_off); b.setTextColor(WHITE); return
@@ -949,30 +961,61 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val acc = me?.takeIf { it.hasAccuracy() }?.let { getString(R.string.gps_acc, it.accuracy) } ?: ""
         b.text = when {
             d == null -> getString(R.string.detector_no_target)
-            d > 3000 -> getString(R.string.detector_far, acc)
+            d > DETECT_MAX_M -> getString(R.string.detector_far, acc)
             else -> getString(R.string.detector_dist, d, acc)
         }
-        b.setTextColor(when { d == null || d > 3000 -> MUTED; d < 50 -> GREEN; d < 300 -> AMBER; else -> ACCENT })
+        b.setTextColor(when { d == null || d > DETECT_MAX_M -> MUTED; d < 50 -> GREEN; d < 300 -> AMBER; else -> ACCENT })
     }
 
     /** "Metal detector": beeps and vibrates faster as you get closer (starts at 3 km). */
+    /**
+     * Geiger-counter style: short clicks whose rate rises on a log scale as you get closer,
+     * from one click every ~2.5 s at 5 km to ~16 per second within 5 m (slightly irregular,
+     * like a real counter). Vibration joins in under 500 m; a different tone under 15 m.
+     */
     private val detector = object : Runnable {
         override fun run() {
             if (!detectorOn) return
             val d = targetDistance()
-            updateDetectorLabel(d)
             val now = System.currentTimeMillis()
-            if (d != null && d <= 3000 && now >= nextBeepAt) {
-                val interval = (d / 3000f * 2500f).toLong().coerceIn(120L, 2500L)
-                nextBeepAt = now + interval
-                tone?.startTone(if (d < 50) ToneGenerator.TONE_PROP_ACK else ToneGenerator.TONE_PROP_BEEP, 60)
-                try {
+            if (now - lastDetectorLabel > 500) { updateDetectorLabel(d); lastDetectorLabel = now }
+            if (d != null && d <= DETECT_MAX_M && now >= nextBeepAt) {
+                val x = (d.coerceIn(5f, DETECT_MAX_M) / 5f).toDouble()
+                val base = 60.0 * Math.pow(x, Math.log(2500.0 / 60.0) / Math.log(DETECT_MAX_M / 5.0))
+                val jitter = 0.75 + Math.random() * 0.5
+                nextBeepAt = now + (base * jitter).toLong().coerceAtLeast(40L)
+                tone?.startTone(if (d < 15) ToneGenerator.TONE_PROP_ACK else ToneGenerator.TONE_PROP_BEEP, if (d < 15) 60 else 18)
+                if (d < 500) try {
                     val v = getSystemService(VIBRATOR_SERVICE) as Vibrator
-                    v.vibrate(VibrationEffect.createOneShot(if (d < 50) 120 else 35, VibrationEffect.DEFAULT_AMPLITUDE))
+                    v.vibrate(VibrationEffect.createOneShot(if (d < 15) 80 else 20, VibrationEffect.DEFAULT_AMPLITUDE))
                 } catch (_: Exception) {}
             }
-            ui.postDelayed(this, 100)
+            ui.postDelayed(this, 20)
         }
+    }
+
+    private var lastDetectorLabel = 0L
+
+    // ---------------------------------------------------------------- compass alignment
+
+    /** Manual alignment: point the phone (top, or back if upright) at a known direction. */
+    private fun showAlignDialog() {
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.align_title)
+            .setMessage(getString(R.string.align_msg, rawMag, compassOffset))
+            .setPositiveButton(R.string.align_now) { _, _ -> setOffset(-rawMag) }
+            .setNeutralButton(R.string.align_flip) { _, _ -> setOffset(compassOffset + 180f) }
+            .setNegativeButton(R.string.align_reset) { _, _ -> setOffset(0f) }
+            .show()
+    }
+
+    private fun setOffset(o: Float) {
+        var v = ((o % 360f) + 360f) % 360f
+        if (v > 180f) v -= 360f
+        compassOffset = v
+        getSharedPreferences("cfg", MODE_PRIVATE).edit().putFloat("compassOffset", v).apply()
+        haveHeading = false
+        Toast.makeText(this, getString(R.string.align_done, v), Toast.LENGTH_SHORT).show()
     }
 
     // ---------------------------------------------------------------- actions

@@ -84,7 +84,7 @@
     <string name="choose_title">Scegli la sonda da recuperare</string>
     <string name="detector_off">Rilevatore di prossimità: spento</string>
     <string name="detector_no_target">Rilevatore acceso · nessun obiettivo</string>
-    <string name="detector_far">Rilevatore acceso · obiettivo oltre 3 km%1$s</string>
+    <string name="detector_far">Rilevatore acceso · obiettivo oltre 5 km%1$s</string>
     <string name="detector_dist">Rilevatore acceso · %1$.0f m%2$s</string>
     <string name="gps_acc">" · GPS ±%1$.0f m"</string>
     <string name="coords_copied">Coordinate copiate</string>
@@ -135,4 +135,13 @@
     <string name="upd_perm_msg">Consenti l\'installazione di app da questa fonte, poi cerca di nuovo gli aggiornamenti.</string>
     <string name="upd_settings">Impostazioni</string>
     <string name="upd_failed">Download dell\'aggiornamento non riuscito: %1$s</string>
+    <string name="detector_desc">Rilevatore di prossimità (suono Geiger)</string>
+    <string name="detector_on_toast">Rilevatore acceso: i clic accelerano man mano che ti avvicini</string>
+    <string name="align_title">Regola bussola</string>
+    <string name="align_msg">La bussola ora indica %1$.0f° (correzione %2$+.0f°).\n\nPer allineare: punta il telefono (la parte alta, o il retro se è in verticale) esattamente a nord con una bussola di riferimento e tocca Allinea nord. Usa Inverti 180° se è tutto al contrario.</string>
+    <string name="align_now">Allinea nord</string>
+    <string name="align_flip">Inverti 180°</string>
+    <string name="align_reset">Azzera</string>
+    <string name="align_done">Correzione bussola: %1$+.0f°</string>
+    <string name="offset_suffix">" · corr. %1$+.0f°"</string>
 </resources>

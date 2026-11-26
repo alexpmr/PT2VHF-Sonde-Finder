@@ -10,9 +10,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.DashPathEffect
 import android.graphics.Paint
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
@@ -28,6 +26,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import org.maplibre.android.MapLibre
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapView
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
@@ -38,16 +39,6 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.BoundingBox
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polyline
-import org.osmdroid.views.overlay.TilesOverlay
-import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -72,14 +63,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val BR: Locale get() = Locale.getDefault()
     }
 
-    private lateinit var map: MapView
+    private lateinit var map: SondeMap
     private lateinit var compass: CompassView
-    private lateinit var sondeMarker: Marker
-    private lateinit var landMarker: Marker
-    private lateinit var userMarker: Marker
-    private val trackLine = Polyline()
-    private val predLine = Polyline()
-    private val userLine = Polyline()
 
     private val ui = Handler(Looper.getMainLooper())
     private val io = Executors.newSingleThreadExecutor()
@@ -104,17 +89,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var headingFromGps = false
     private var mapHeadingUp = false
     private var lastMapRot = 0f
-    private lateinit var cone: HeadingCone
-    private var lastConeHeading = -999f
+    private var lastConeHeading = -999f // map beam last drawn heading
     private var autoFitDone = false
     private var all: List<Sonde> = emptyList()
     private var manualSerial: String? = null
     private var radiusKm = 100
     private var windowH = 6
-    private val others = HashMap<String, Marker>()
-    private lateinit var iconLive: BitmapDrawable
-    private lateinit var iconOld: BitmapDrawable
-    private lateinit var iconRec: BitmapDrawable
     private var recoveries: Map<String, Recovery> = emptyMap()
     private var lastRecAt = 0L
     private var hideRecovered = false
@@ -129,11 +109,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Configuration.getInstance().apply {
-            userAgentValue = "PT2VHF-SondeFinder/1.0 ($packageName)"
-            osmdroidBasePath = File(cacheDir, "osmdroid")
-            osmdroidTileCache = File(cacheDir, "osmdroid/tiles")
-        }
+        MapLibre.getInstance(this)
         setContentView(R.layout.activity_main)
         sensors = getSystemService(SENSOR_SERVICE) as SensorManager
         locations = getSystemService(LOCATION_SERVICE) as LocationManager
@@ -145,8 +121,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             compassOffset = it.getFloat("compassOffset", 0f)
             gpsWhenMoving = it.getBoolean("gpsWhenMoving", false)
         }
-        setupMap()
-        if (mapHeadingUp) map.post { setMapHeadingUp(true, false) }
+        setupMap(savedInstanceState)
+        if (mapHeadingUp) ui.postDelayed({ setMapHeadingUp(true, false) }, 1000)
         compass = findViewById(R.id.compass)
         compass.setOnLongClickListener { showAlignDialog(); true }
         findViewById<TextView>(R.id.btnHeadingMode).setOnClickListener {
@@ -198,120 +174,58 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         setDetector(false)
     }
 
+    override fun onStart() { super.onStart(); map.onStart() }
+    override fun onStop() { super.onStop(); map.onStop() }
+    override fun onLowMemory() { super.onLowMemory(); map.onLowMemory() }
+    override fun onSaveInstanceState(outState: Bundle) { super.onSaveInstanceState(outState); map.onSaveInstanceState(outState) }
+
     override fun onDestroy() {
         super.onDestroy()
+        map.onDestroy()
         io.shutdownNow()
     }
 
     // ---------------------------------------------------------------- map
 
-    private fun dotIcon(fill: Int, ringColor: Int, sizeDp: Int, ringDp: Float, cross: Boolean = false): BitmapDrawable {
-        val d = resources.displayMetrics.density
-        val s = (sizeDp * d).roundToInt()
-        val b = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888)
-        val c = Canvas(b)
-        val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        if (cross) {
-            p.color = Color.argb(40, 232, 237, 241)
-            c.drawCircle(s / 2f, s / 2f, s / 2f, p)
-            p.color = fill; p.strokeWidth = 3 * d; p.strokeCap = Paint.Cap.ROUND
-            val a = s * 0.3f; val z = s * 0.7f
-            c.drawLine(a, a, z, z, p); c.drawLine(z, a, a, z, p)
-        } else {
-            p.color = Color.argb(46, Color.red(fill), Color.green(fill), Color.blue(fill))
-            c.drawCircle(s / 2f, s / 2f, s / 2f, p)
-            p.color = ringColor
-            c.drawCircle(s / 2f, s / 2f, s * 0.3f + ringDp * d, p)
-            p.color = fill
-            c.drawCircle(s / 2f, s / 2f, s * 0.3f, p)
+    private fun setupMap(saved: Bundle?) {
+        map = SondeMap(this, findViewById<MapView>(R.id.map), saved)
+        map.onOtherClick = { serial -> select(serial) }
+        map.onSelectedClick = { showCompass(true) }
+        map.onLandingClick = { targetLanding = true; showCompass(true) }
+        map.onBearing = { b ->
+            findViewById<View>(R.id.btnOrient).rotation = -b
+            updateChipArrow()
         }
-        return BitmapDrawable(resources, b)
     }
 
-    private fun setupMap() {
-        map = findViewById(R.id.map)
-        map.setTileSource(TileSourceFactory.MAPNIK)
-        map.setMultiTouchControls(true)
-        map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-        map.overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
-        map.overlayManager.tilesOverlay.loadingBackgroundColor = Color.parseColor("#141D25")
-        map.setBackgroundColor(Color.parseColor("#141D25"))
-        map.controller.setZoom(5.0)
-        map.controller.setCenter(GeoPoint(-15.79, -47.88))
-        map.isTilesScaledToDpi = true
-
-        val d = resources.displayMetrics.density
-        trackLine.outlinePaint.apply { color = ACCENT; strokeWidth = 3 * d; strokeCap = Paint.Cap.ROUND }
-        predLine.outlinePaint.apply {
-            color = WHITE; alpha = 190; strokeWidth = 2 * d; pathEffect = DashPathEffect(floatArrayOf(8 * d, 8 * d), 0f)
-        }
-        userLine.outlinePaint.apply {
-            color = BLUE; alpha = 200; strokeWidth = 2 * d; pathEffect = DashPathEffect(floatArrayOf(10 * d, 8 * d), 0f)
-        }
-        for (l in listOf(trackLine, predLine, userLine)) { l.isEnabled = false; l.setOnClickListener { _, _, _ -> false } }
-
-        landMarker = Marker(map).apply {
-            icon = dotIcon(WHITE, 0, 34, 0f, cross = true)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = getString(R.string.predicted_landing); isEnabled = false
-        }
-        iconLive = dotIcon(ACCENT, Color.parseColor("#0E1419"), 24, 2f)
-        iconOld = dotIcon(Color.parseColor("#8C99A5"), Color.parseColor("#0E1419"), 22, 2f)
-        iconRec = dotIcon(Color.parseColor("#2E8F5A"), Color.parseColor("#0E1419"), 20, 2f)
-        sondeMarker = Marker(map).apply {
-            icon = dotIcon(ACCENT, Color.parseColor("#0E1419"), 40, 3f)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); isEnabled = false
-            setOnMarkerClickListener { _, _ -> showCompass(true); true }
-        }
-        userMarker = Marker(map).apply {
-            icon = dotIcon(BLUE, Color.WHITE, 40, 3f)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); title = getString(R.string.you); isEnabled = false
-            setOnMarkerClickListener { _, _ -> true }
-        }
-        landMarker.setOnMarkerClickListener { _, _ -> targetLanding = true; showCompass(true); true }
-        cone = HeadingCone(d)
-        map.overlays.addAll(listOf(trackLine, predLine, userLine, landMarker, sondeMarker, cone, userMarker))
-    }
+    private fun ll(lat: Double, lon: Double) = LatLng(lat, lon)
 
     private fun fitEverything() {
-        val pts = ArrayList<GeoPoint>()
-        me?.let { pts.add(GeoPoint(it.latitude, it.longitude)) }
-        for (o in all) pts.add(GeoPoint(o.lat, o.lon))
+        val pts = ArrayList<LatLng>()
+        me?.let { pts.add(ll(it.latitude, it.longitude)) }
+        for (o in all) pts.add(ll(o.lat, o.lon))
         if (pts.size < 2) { fitAll(); return }
-        val box = BoundingBox.fromGeoPointsSafe(pts)
-        map.post { map.zoomToBoundingBox(box.increaseByScale(1.2f), true, (60 * resources.displayMetrics.density).toInt()) }
+        map.fit(pts, 50)
     }
 
     private fun fitAll() {
-        val pts = ArrayList<GeoPoint>()
-        me?.let { pts.add(GeoPoint(it.latitude, it.longitude)) }
-        sonde?.let { pts.add(GeoPoint(it.lat, it.lon)) }
-        pred?.landing?.let { pts.add(GeoPoint(it.lat, it.lon)) }
-        if (pts.isEmpty()) return
-        if (pts.size == 1) { map.controller.animateTo(pts[0], 14.0, 600L); return }
-        val box = BoundingBox.fromGeoPointsSafe(pts)
-        map.post { map.zoomToBoundingBox(box.increaseByScale(1.5f), true, (60 * resources.displayMetrics.density).toInt()) }
+        val pts = ArrayList<LatLng>()
+        me?.let { pts.add(ll(it.latitude, it.longitude)) }
+        sonde?.let { pts.add(ll(it.lat, it.lon)) }
+        pred?.landing?.let { pts.add(ll(it.lat, it.lon)) }
+        map.fit(pts, 70)
     }
 
     private fun syncOthers() {
         val now = System.currentTimeMillis()
-        val keep = HashSet<String>()
-        for (o in all) {
-            if (o.serial == sonde?.serial) continue
-            keep.add(o.serial)
-            val m = others.getOrPut(o.serial) {
-                Marker(map).apply {
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                    setOnMarkerClickListener { mk, _ -> select(mk.id); true }
-                    id = o.serial
-                    map.overlays.add(3, this)
-                }
+        map.setOthers(all.filter { it.serial != sonde?.serial }.map { o ->
+            val kind = when {
+                recoveries[o.serial]?.recovered == true -> SondeMap.Kind.RECOVERED
+                now - o.timeMs < 10 * 60_000L -> SondeMap.Kind.LIVE
+                else -> SondeMap.Kind.OLD
             }
-            m.position = GeoPoint(o.lat, o.lon)
-            val live = now - o.timeMs < 10 * 60_000L
-            m.icon = if (recoveries[o.serial]?.recovered == true) iconRec else if (live) iconLive else iconOld
-        }
-        val gone = others.keys.filter { it !in keep }
-        for (k in gone) { map.overlays.remove(others.remove(k)) }
+            SondeMap.Other(o.serial, o.lat, o.lon, kind)
+        })
         findViewById<TextView>(R.id.btnList).text = resources.getQuantityString(R.plurals.sondes_count, all.size, all.size)
     }
 
@@ -319,35 +233,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         syncOthers()
         val s = sonde
         val u = me
-        if (u != null) {
-            userMarker.position = GeoPoint(u.latitude, u.longitude); userMarker.isEnabled = true
-            cone.position = userMarker.position
-        }
-        if (s != null) {
-            sondeMarker.position = GeoPoint(s.lat, s.lon)
-            sondeMarker.title = s.serial
-            sondeMarker.snippet = fmtAlt(s.alt)
-            sondeMarker.isEnabled = true
-            trackLine.setPoints(track.map { GeoPoint(it.lat, it.lon) } + GeoPoint(s.lat, s.lon))
-            trackLine.isEnabled = track.isNotEmpty()
-            val land = pred?.landing
-            if (land != null && s.velV < 0) {
-                landMarker.position = GeoPoint(land.lat, land.lon); landMarker.isEnabled = true
-                predLine.setPoints(listOf(GeoPoint(s.lat, s.lon), GeoPoint(land.lat, land.lon)))
-                predLine.isEnabled = true
-            } else { landMarker.isEnabled = false; predLine.isEnabled = false }
-        } else {
-            sondeMarker.isEnabled = false; trackLine.isEnabled = false
-            landMarker.isEnabled = false; predLine.isEnabled = false
-        }
-        if (u != null && s != null) {
-            userLine.setPoints(listOf(GeoPoint(u.latitude, u.longitude), GeoPoint(s.lat, s.lon)))
-            userLine.isEnabled = true
-        } else userLine.isEnabled = false
+        if (u != null) map.setUser(u.latitude, u.longitude)
+        val land = pred?.landing
+        map.setSelected(s?.lat, s?.lon, track.map { ll(it.lat, it.lon) },
+            if (s != null && land != null && s.velV < 0) ll(land.lat, land.lon) else null,
+            lineToUser = u != null && s != null)
         if (!autoFitDone && (s != null || u != null)) {
             fitAll(); if (s != null && u != null) autoFitDone = true
         }
-        map.invalidate()
     }
 
     // ---------------------------------------------------------------- data
@@ -459,7 +352,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             gpsCourse = location.bearing; gpsCourseAt = System.currentTimeMillis()
             updateHeading()
         }
-        if (mapHeadingUp && !compassMode) map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+        if (mapHeadingUp && !compassMode) map.follow(location.latitude, location.longitude)
         render(); updateMap()
     }
 
@@ -525,14 +418,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     private fun updateCone() {
-        cone.spread = if (headingFromGps) 50f else 70f
         var d = heading - lastConeHeading
         if (d > 180) d -= 360f
         if (d < -180) d += 360f
-        if (abs(d) < 2f && cone.heading != null) return
+        if (abs(d) < 2f) return
         lastConeHeading = heading
-        cone.heading = heading
-        map.invalidate()
+        map.setCone(heading, headingFromGps)
     }
 
     private fun rotateMap() {
@@ -542,9 +433,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (d < -180) d += 360f
         if (abs(d) < 1f) return
         lastMapRot = heading
-        map.mapOrientation = -heading
-        findViewById<View>(R.id.btnOrient).rotation = -heading
-        updateChipArrow()
+        map.setBearing(heading, false)
     }
 
     private fun setMapHeadingUp(on: Boolean, announce: Boolean) {
@@ -552,12 +441,10 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("mapHeadingUp", on).apply()
         if (on) {
             lastMapRot = heading + 10f // force an update
-            rotateMap()
-            me?.let { map.controller.animateTo(GeoPoint(it.latitude, it.longitude)) }
+            map.setBearing(heading, true)
+            me?.let { map.follow(it.latitude, it.longitude) }
         } else {
-            map.mapOrientation = 0f
-            findViewById<View>(R.id.btnOrient).rotation = 0f
-            updateChipArrow()
+            map.setBearing(0f, true)
         }
         if (announce) Toast.makeText(this, if (on) R.string.map_heading_up else R.string.map_north_up, Toast.LENGTH_SHORT).show()
     }
@@ -565,7 +452,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var chipBearing = 0f
     private fun updateChipArrow() {
         // icon points NE by default; on a rotated map the arrow must follow the map
-        findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - 45f + map.mapOrientation
+        findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - 45f - map.bearing
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

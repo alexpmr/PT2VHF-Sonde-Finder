@@ -8,7 +8,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 
 ## Funções
 
-- **Mapa** (OpenStreetMap, tema escuro) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
+- **Mapa vetorial** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
 - **Filtro** de raio (10–500 km) e janela de tempo (1 h a 1 ano), salvo no aparelho.
 - **Seleção** automática (a que transmitiu mais recentemente) ou manual (toque no mapa ou pela lista).
 - **Bússola** com agulha ADF apontando para a última posição recebida ou para o pouso previsto; rumo, "vire X°", elevação para a antena e tempo até o pouso.

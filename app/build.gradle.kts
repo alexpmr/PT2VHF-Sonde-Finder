@@ -9,8 +9,10 @@ android {
         applicationId = "com.pt2vhf.sondefinder"
         minSdk = 26
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.5.1"
+        versionCode = 12
+        versionName = "1.6.0"
+        // Real phones only (ARM); x86 builds exist only for emulators and double the APK size.
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
     signingConfigs {
         if (!releaseKeyStore.isNullOrBlank()) {
@@ -29,6 +31,8 @@ android {
                 else signingConfigs.getByName("debug")
         }
     }
+    // Compress the native map library inside the APK (smaller download for sideloading).
+    packaging { jniLibs { useLegacyPackaging = true } }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -38,5 +42,5 @@ android {
 }
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
-    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("org.maplibre.gl:android-sdk:13.8.0")
 }

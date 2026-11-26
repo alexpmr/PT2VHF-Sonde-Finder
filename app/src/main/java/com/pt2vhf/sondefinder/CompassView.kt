@@ -51,6 +51,9 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
     }
     private val lubber = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#4DA3FF") }
     private val needle = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val tail = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#7F8E9B"); style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND
+    }
     private val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#0E1419"); style = Paint.Style.STROKE; strokeWidth = 1.5f * d
         strokeJoin = Paint.Join.ROUND
@@ -132,20 +135,24 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
             needle.color = needleColor
             needle.setShadowLayer(3 * d, 0f, 2 * d, Color.argb(140, 0, 0, 0))
             val k = r / 150f
-            val tipY = cy - 132 * k
-            val tailY = cy + 128 * k
-            val shaft = Path().apply {
-                addRect(cx - 3 * k, tipY + 26 * k, cx + 3 * k, tailY - 20 * k, Path.Direction.CW)
-            }
+            val tipY = cy - 134 * k
+            val tailY = cy + 118 * k
+            // Head half: thick, accent colour, big arrowhead. Tail half: thin and grey with
+            // feather strokes, so the pointing end can never be mistaken for the tail.
+            val headShaft = Path().apply { addRect(cx - 3.5f * k, tipY + 40 * k, cx + 3.5f * k, cy, Path.Direction.CW) }
             val head = Path().apply {
-                moveTo(cx, tipY); lineTo(cx + 15 * k, tipY + 38 * k); lineTo(cx, tipY + 30 * k)
-                lineTo(cx - 15 * k, tipY + 38 * k); close()
+                moveTo(cx, tipY); lineTo(cx + 22 * k, tipY + 52 * k); lineTo(cx, tipY + 42 * k)
+                lineTo(cx - 22 * k, tipY + 52 * k); close()
             }
-            val tail = Path().apply {
-                moveTo(cx, tailY - 32 * k); lineTo(cx + 15 * k, tailY); lineTo(cx, tailY - 10 * k)
-                lineTo(cx - 15 * k, tailY); close()
+            for (p in listOf(headShaft, head)) { c.drawPath(p, needle); c.drawPath(p, outline) }
+            needle.clearShadowLayer()
+            tail.strokeWidth = 3 * k
+            c.drawLine(cx, cy, cx, tailY, tail)
+            for (i in 0..2) {
+                val y = tailY - i * 10 * k
+                c.drawLine(cx, y - 12 * k, cx - 11 * k, y, tail)
+                c.drawLine(cx, y - 12 * k, cx + 11 * k, y, tail)
             }
-            for (p in listOf(shaft, head, tail)) { c.drawPath(p, needle); c.drawPath(p, outline) }
             needle.clearShadowLayer()
             c.restore()
         }

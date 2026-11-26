@@ -637,6 +637,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private fun etaText(s: Sonde?): String {
         if (s == null) return "—"
         if (s.velV.isNaN() || s.velV >= -0.5) return "—"
+        // a sonde that stopped transmitting long ago has already landed: no countdown
+        if (System.currentTimeMillis() - s.timeMs > 10 * 60_000L) return "—"
         val t = etaSeconds(s) ?: return "—"
         return if (t < 60) getString(R.string.lt_1min) else getString(R.string.approx_min, (t / 60.0).roundToInt())
     }

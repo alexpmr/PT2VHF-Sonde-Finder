@@ -104,6 +104,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var headingFromGps = false
     private var mapHeadingUp = false
     private var lastMapRot = 0f
+    private lateinit var cone: HeadingCone
+    private var lastConeHeading = -999f
     private var autoFitDone = false
     private var all: List<Sonde> = emptyList()
     private var manualSerial: String? = null
@@ -259,7 +261,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setOnMarkerClickListener { _, _ -> true }
         }
         landMarker.setOnMarkerClickListener { _, _ -> targetLanding = true; showCompass(true); true }
-        map.overlays.addAll(listOf(trackLine, predLine, userLine, landMarker, sondeMarker, userMarker))
+        cone = HeadingCone(d)
+        map.overlays.addAll(listOf(trackLine, predLine, userLine, landMarker, sondeMarker, cone, userMarker))
     }
 
     private fun fitEverything() {
@@ -311,6 +314,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val u = me
         if (u != null) {
             userMarker.position = GeoPoint(u.latitude, u.longitude); userMarker.isEnabled = true
+            cone.position = userMarker.position
         }
         if (s != null) {
             sondeMarker.position = GeoPoint(s.lat, s.lon)
@@ -504,7 +508,18 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             if (diff < -180) diff += 360f
             heading = (heading + diff * (if (gpsFresh) 0.35f else 0.15f) + 360f) % 360f
         }
-        if (compassMode) renderCompass() else rotateMap()
+        if (compassMode) renderCompass() else { rotateMap(); updateCone() }
+    }
+
+    private fun updateCone() {
+        cone.spread = if (headingFromGps) 50f else 70f
+        var d = heading - lastConeHeading
+        if (d > 180) d -= 360f
+        if (d < -180) d += 360f
+        if (abs(d) < 2f && cone.heading != null) return
+        lastConeHeading = heading
+        cone.heading = heading
+        map.invalidate()
     }
 
     private fun rotateMap() {

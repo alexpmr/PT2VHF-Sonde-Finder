@@ -111,4 +111,9 @@
         <item>S</item>
         <item>W</item>
     </string-array>
+    <string name="map_orientation_desc">Orientacja mapy</string>
+    <string name="map_north_up">Mapa: północ u góry</string>
+    <string name="map_heading_up">Mapa: kierunek u góry</string>
+    <string name="heading_src_gps">" · kurs z GPS"</string>
+    <string name="heading_src_mag">" · kurs z kompasu"</string>
 </resources>

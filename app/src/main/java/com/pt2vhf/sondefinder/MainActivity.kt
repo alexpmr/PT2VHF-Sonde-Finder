@@ -95,6 +95,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var compassMode = false
     private var heading = 0f
     private var haveHeading = false
+    private var magHeading = 0f
+    private var haveMag = false
+    private var useBackAxis = false
+    private var gpsCourse = 0f
+    private var gpsCourseAt = 0L
+    private var headingFromGps = false
+    private var mapHeadingUp = false
+    private var lastMapRot = 0f
     private var autoFitDone = false
     private var all: List<Sonde> = emptyList()
     private var manualSerial: String? = null
@@ -130,8 +138,10 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         getSharedPreferences("cfg", MODE_PRIVATE).let {
             radiusKm = it.getInt("radiusKm", 100); windowH = it.getInt("windowH", 6)
             hideRecovered = it.getBoolean("hideRecovered", false)
+            mapHeadingUp = it.getBoolean("mapHeadingUp", false)
         }
         setupMap()
+        if (mapHeadingUp) map.post { setMapHeadingUp(true, false) }
         compass = findViewById(R.id.compass)
         findViewById<View>(R.id.btnFilter).setOnClickListener { showFilterDialog() }
         findViewById<View>(R.id.btnList).setOnClickListener { showListDialog() }
@@ -143,6 +153,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.segLast).setOnClickListener { targetLanding = false; render() }
         findViewById<View>(R.id.segLand).setOnClickListener { targetLanding = true; render() }
         findViewById<View>(R.id.btnCenter).setOnClickListener { fitAll() }
+        findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
         findViewById<View>(R.id.btnCenter).setOnLongClickListener { fitEverything(); true }
         findViewById<View>(R.id.btnCopy).setOnClickListener { copyCoords() }
         findViewById<View>(R.id.btnNav).setOnClickListener { navigate() }
@@ -423,6 +434,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             cur.provider == LocationManager.GPS_PROVIDER && location.time - cur.time < 15000) return
         me = location
         if (firstFix) ui.post { fetch() }
+        // Moving (>= ~7 km/h): the GPS course is the travel direction and is immune to
+        // magnetic interference (car body, mounts, electronics).
+        if (location.hasBearing() && location.hasSpeed() && location.speed >= 2.0f &&
+            (!location.hasBearingAccuracy() || location.bearingAccuracyDegrees <= 30f)) {
+            gpsCourse = location.bearing; gpsCourseAt = System.currentTimeMillis()
+            updateHeading()
+        }
+        if (mapHeadingUp && !compassMode) map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
         render(); updateMap()
     }
 
@@ -437,20 +456,72 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     override fun onSensorChanged(e: SensorEvent) {
         if (e.sensor.type != Sensor.TYPE_ROTATION_VECTOR) return
         SensorManager.getRotationMatrixFromVector(rot, e.values)
-        SensorManager.getOrientation(rot, ori)
-        var az = Math.toDegrees(ori[0].toDouble()).toFloat()
+        // rot maps device axes to world (x = East, y = North, z = Up).
+        // Lying flat (screen up/down) the heading is where the TOP of the phone points;
+        // standing up (hand or car mount) it is where the BACK of the phone points.
+        // getOrientation() always uses the top, which flips 180° when the phone is upright
+        // and leaning back, as in a car mount.
+        val zUp = abs(rot[8])
+        if (useBackAxis && zUp > 0.6f) useBackAxis = false
+        else if (!useBackAxis && zUp < 0.45f) useBackAxis = true
+        val vx = if (useBackAxis) -rot[2] else rot[1]
+        val vy = if (useBackAxis) -rot[5] else rot[4]
+        if (vx * vx + vy * vy < 1e-4f) return
+        var az = Math.toDegrees(atan2(vx.toDouble(), vy.toDouble())).toFloat()
         me?.let {
             az += GeomagneticField(it.latitude.toFloat(), it.longitude.toFloat(), it.altitude.toFloat(), System.currentTimeMillis()).declination
         }
-        az = (az + 360f) % 360f
-        if (!haveHeading) { heading = az; haveHeading = true }
+        magHeading = (az + 360f) % 360f
+        haveMag = true
+        updateHeading()
+    }
+
+    /** Effective heading: GPS course while moving, electronic compass when stopped. */
+    private fun updateHeading() {
+        val gpsFresh = System.currentTimeMillis() - gpsCourseAt < 4000L
+        headingFromGps = gpsFresh
+        val target = if (gpsFresh) gpsCourse else if (haveMag) magHeading else return
+        if (!haveHeading) { heading = target; haveHeading = true }
         else {
-            var diff = az - heading
+            var diff = target - heading
             if (diff > 180) diff -= 360f
             if (diff < -180) diff += 360f
-            heading = (heading + diff * 0.15f + 360f) % 360f
+            heading = (heading + diff * (if (gpsFresh) 0.35f else 0.15f) + 360f) % 360f
         }
-        if (compassMode) renderCompass()
+        if (compassMode) renderCompass() else rotateMap()
+    }
+
+    private fun rotateMap() {
+        if (!mapHeadingUp) return
+        var d = heading - lastMapRot
+        if (d > 180) d -= 360f
+        if (d < -180) d += 360f
+        if (abs(d) < 1f) return
+        lastMapRot = heading
+        map.mapOrientation = -heading
+        findViewById<View>(R.id.btnOrient).rotation = -heading
+        updateChipArrow()
+    }
+
+    private fun setMapHeadingUp(on: Boolean, announce: Boolean) {
+        mapHeadingUp = on
+        getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("mapHeadingUp", on).apply()
+        if (on) {
+            lastMapRot = heading + 10f // force an update
+            rotateMap()
+            me?.let { map.controller.animateTo(GeoPoint(it.latitude, it.longitude)) }
+        } else {
+            map.mapOrientation = 0f
+            findViewById<View>(R.id.btnOrient).rotation = 0f
+            updateChipArrow()
+        }
+        if (announce) Toast.makeText(this, if (on) R.string.map_heading_up else R.string.map_north_up, Toast.LENGTH_SHORT).show()
+    }
+
+    private var chipBearing = 0f
+    private fun updateChipArrow() {
+        // icon points NE by default; on a rotated map the arrow must follow the map
+        findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - 45f + map.mapOrientation
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -620,7 +691,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             var b = r[1].toDouble(); if (b < 0) b += 360
             txt(R.id.chipDist, fmtDist(r[0].toDouble()).let { "${it.first} ${it.second}" })
             txt(R.id.chipBearing, getString(R.string.chip_bearing, b, cardinal(b)))
-            findViewById<ImageView>(R.id.chipArrow).rotation = b.toFloat() - 45f // icon points NE by default
+            chipBearing = b.toFloat(); updateChipArrow()
             if (!s.alt.isNaN()) {
                 val myAlt = if (u.hasAltitude()) u.altitude else 0.0
                 val el = Math.toDegrees(atan2(s.alt - myAlt, r[0].toDouble()))
@@ -680,7 +751,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             abs(rel) <= 5 -> getString(R.string.straight_ahead)
             else -> getString(if (rel > 0) R.string.turn_right else R.string.turn_left, abs(rel))
         }
-        txt(R.id.cBearing, getString(R.string.bearing_line, b, cardinal(b), turn))
+        txt(R.id.cBearing, getString(R.string.bearing_line, b, cardinal(b), turn) +
+            if (!haveHeading) "" else getString(if (headingFromGps) R.string.heading_src_gps else R.string.heading_src_mag))
     }
 
     // ---------------------------------------------------------------- selection & filter

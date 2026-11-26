@@ -110,4 +110,9 @@
         <item>S</item>
         <item>O</item>
     </string-array>
+    <string name="map_orientation_desc">Orientation de la carte</string>
+    <string name="map_north_up">Carte : nord en haut</string>
+    <string name="map_heading_up">Carte : cap en haut</string>
+    <string name="heading_src_gps">" · cap par GPS"</string>
+    <string name="heading_src_mag">" · cap par boussole"</string>
 </resources>

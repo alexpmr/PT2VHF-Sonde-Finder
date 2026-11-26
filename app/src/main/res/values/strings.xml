@@ -110,4 +110,9 @@
         <item>S</item>
         <item>W</item>
     </string-array>
+    <string name="map_orientation_desc">Map orientation</string>
+    <string name="map_north_up">Map: north up</string>
+    <string name="map_heading_up">Map: heading up</string>
+    <string name="heading_src_gps">" · heading by GPS"</string>
+    <string name="heading_src_mag">" · heading by compass"</string>
 </resources>

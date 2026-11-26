@@ -110,4 +110,9 @@
         <item>S</item>
         <item>O</item>
     </string-array>
+    <string name="map_orientation_desc">Orientamento mappa</string>
+    <string name="map_north_up">Mappa: nord in alto</string>
+    <string name="map_heading_up">Mappa: rotta in alto</string>
+    <string name="heading_src_gps">" · rotta da GPS"</string>
+    <string name="heading_src_mag">" · rotta da bussola"</string>
 </resources>

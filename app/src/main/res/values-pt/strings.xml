@@ -110,4 +110,9 @@
         <item>S</item>
         <item>O</item>
     </string-array>
+    <string name="map_orientation_desc">Orientação do mapa</string>
+    <string name="map_north_up">Mapa: norte para cima</string>
+    <string name="map_heading_up">Mapa: rumo para cima</string>
+    <string name="heading_src_gps">" · rumo pelo GPS"</string>
+    <string name="heading_src_mag">" · rumo pela bússola"</string>
 </resources>

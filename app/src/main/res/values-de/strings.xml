@@ -109,4 +109,9 @@
         <item>S</item>
         <item>W</item>
     </string-array>
+    <string name="map_orientation_desc">Kartenausrichtung</string>
+    <string name="map_north_up">Karte: Norden oben</string>
+    <string name="map_heading_up">Karte: Fahrtrichtung oben</string>
+    <string name="heading_src_gps">" · Kurs per GPS"</string>
+    <string name="heading_src_mag">" · Kurs per Kompass"</string>
 </resources>

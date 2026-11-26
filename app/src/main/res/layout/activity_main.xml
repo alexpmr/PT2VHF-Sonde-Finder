@@ -192,6 +192,15 @@
                         android:textColor="@color/text"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnOrient"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_overlay_btn"
+                        android:contentDescription="@string/map_orientation_desc"
+                        android:src="@drawable/ic_north" />
                 </LinearLayout>
 
                 <ImageButton

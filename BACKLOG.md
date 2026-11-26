@@ -4,6 +4,12 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
+- **Contagem de usuários pela verificação de versão** (pedido do mantenedor, 26/11/2026). O app consulta o site
+  (`update.php?product=sonde`) enviando um identificador único e anônimo da instalação (UUID gerado no primeiro
+  uso, guardado só no aparelho), independente da versão, para o site contar usuários totais e ativos.
+  Vale também para a versão do Play (só a consulta, sem o atualizador). Informar na política de privacidade.
+  Ligado ao item do site "contadores de usuários do Sonde Finder".
+
 - **Atualização automática**: depende do site publicar `product=sonde` (feito na v1.8.0) e dos secrets da chave
   permanente no GitHub (o CI assina com eles; sem eles gera `-DEBUG-KEY`).
 

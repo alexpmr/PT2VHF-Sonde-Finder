@@ -58,7 +58,7 @@
     <string name="failed_by">Búsqueda sin éxito reportada por %1$s</string>
     <string name="high_last">Último paquete a %1$s por encima de usted: la sonda pudo caer más adelante%2$s.</string>
     <string name="along_heading">, rumbo %1$.0f° %2$s</string>
-    <string name="no_compass">sin brújula</string>
+    <string name="no_compass">brújula no disponible: esfera con norte arriba</string>
     <string name="straight_ahead">de frente</string>
     <string name="turn_right">gire %1$.0f° a la derecha</string>
     <string name="turn_left">gire %1$.0f° a la izquierda</string>
@@ -113,6 +113,26 @@
     <string name="map_orientation_desc">Orientación del mapa</string>
     <string name="map_north_up">Mapa: norte arriba</string>
     <string name="map_heading_up">Mapa: rumbo arriba</string>
-    <string name="heading_src_gps">" · rumbo por GPS"</string>
-    <string name="heading_src_mag">" · rumbo por brújula"</string>
+    <string name="heading_src_gps">" · usted %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · usted %1$.0f° (brújula)"</string>
+    <string name="no_compass_sensor">teléfono sin brújula: camine para usar el rumbo del GPS</string>
+    <string name="calibrate_hint">La brújula necesita calibración: mueva el teléfono dibujando un 8.</string>
+    <string name="about_title">Acerca de</string>
+    <string name="about_msg">Versión %1$s\n\nEncuentra radiosondas cerca de usted, incluso las que cayeron hace mucho.\n\nDatos: SondeHub (sondehub.org)\nMapa: © colaboradores de OpenStreetMap</string>
+    <string name="check_updates">Buscar actualizaciones</string>
+    <string name="upd_title">Actualizaciones</string>
+    <string name="upd_latest">Está usando la versión más reciente (%1$s).</string>
+    <string name="upd_none">No se encontró ninguna versión publicada en el sitio PT2VHF.</string>
+    <string name="upd_new_title">Nueva versión disponible</string>
+    <string name="upd_new_msg">Versión %1$s (usted tiene la %2$s)\n\n%3$s\n\nEl archivo se descarga del sitio PT2VHF y se verifica con SHA-256. Android pedirá confirmación para instalar.</string>
+    <string name="upd_later">Ahora no</string>
+    <string name="upd_download">Descargar</string>
+    <string name="upd_unavailable">Sitio de actualización no disponible.</string>
+    <string name="upd_downloading">Descargando la actualización…</string>
+    <string name="upd_sig_title">Firma incompatible</string>
+    <string name="upd_sig_msg">Este APK está firmado con un certificado distinto al de la app instalada. Android solo lo instala tras desinstalar la versión actual.</string>
+    <string name="upd_perm_title">Permitir instalación</string>
+    <string name="upd_perm_msg">Permita instalar apps de esta fuente y vuelva a buscar actualizaciones.</string>
+    <string name="upd_settings">Ajustes</string>
+    <string name="upd_failed">Error al descargar la actualización: %1$s</string>
 </resources>

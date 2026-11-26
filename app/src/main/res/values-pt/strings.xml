@@ -58,7 +58,7 @@
     <string name="failed_by">Relato de busca sem sucesso (%1$s)</string>
     <string name="high_last">Último pacote a %1$s acima de você: a sonda pode ter caído adiante%2$s.</string>
     <string name="along_heading">, no rumo %1$.0f° %2$s</string>
-    <string name="no_compass">sem bússola</string>
+    <string name="no_compass">bússola indisponível: mostrador com norte para cima</string>
     <string name="straight_ahead">em frente</string>
     <string name="turn_right">vire %1$.0f° à direita</string>
     <string name="turn_left">vire %1$.0f° à esquerda</string>
@@ -113,6 +113,26 @@
     <string name="map_orientation_desc">Orientação do mapa</string>
     <string name="map_north_up">Mapa: norte para cima</string>
     <string name="map_heading_up">Mapa: rumo para cima</string>
-    <string name="heading_src_gps">" · rumo pelo GPS"</string>
-    <string name="heading_src_mag">" · rumo pela bússola"</string>
+    <string name="heading_src_gps">" · você %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · você %1$.0f° (bússola)"</string>
+    <string name="no_compass_sensor">celular sem bússola: ande para usar o rumo do GPS</string>
+    <string name="calibrate_hint">A bússola precisa de calibração: mova o celular desenhando um 8.</string>
+    <string name="about_title">Sobre</string>
+    <string name="about_msg">Versão %1$s\n\nEncontra radiossondas perto de você, inclusive as que caíram há muito tempo.\n\nDados: SondeHub (sondehub.org)\nMapa: © colaboradores do OpenStreetMap</string>
+    <string name="check_updates">Verificar atualizações</string>
+    <string name="upd_title">Atualizações</string>
+    <string name="upd_latest">Você está na versão mais recente (%1$s).</string>
+    <string name="upd_none">Nenhuma versão publicada foi encontrada no site PT2VHF.</string>
+    <string name="upd_new_title">Nova versão disponível</string>
+    <string name="upd_new_msg">Versão %1$s (você tem a %2$s)\n\n%3$s\n\nO arquivo é baixado do site PT2VHF e conferido por SHA-256. O Android vai pedir confirmação para instalar.</string>
+    <string name="upd_later">Agora não</string>
+    <string name="upd_download">Baixar</string>
+    <string name="upd_unavailable">Site de atualização indisponível.</string>
+    <string name="upd_downloading">Baixando a atualização…</string>
+    <string name="upd_sig_title">Assinatura incompatível</string>
+    <string name="upd_sig_msg">Este APK foi assinado com um certificado diferente do app instalado. O Android só instala depois de desinstalar a versão atual.</string>
+    <string name="upd_perm_title">Autorizar instalação</string>
+    <string name="upd_perm_msg">Permita instalar apps desta fonte e depois verifique as atualizações de novo.</string>
+    <string name="upd_settings">Configurações</string>
+    <string name="upd_failed">Falha ao baixar a atualização: %1$s</string>
 </resources>

@@ -58,7 +58,7 @@
     <string name="failed_by">Erfolglose Suche gemeldet von %1$s</string>
     <string name="high_last">Letztes Paket %1$s über dir: die Sonde könnte weiter entfernt gelandet sein%2$s.</string>
     <string name="along_heading">, Kurs %1$.0f° %2$s</string>
-    <string name="no_compass">kein Kompass</string>
+    <string name="no_compass">Kompass nicht bereit: Skala mit Norden oben</string>
     <string name="straight_ahead">geradeaus</string>
     <string name="turn_right">%1$.0f° nach rechts</string>
     <string name="turn_left">%1$.0f° nach links</string>
@@ -112,6 +112,26 @@
     <string name="map_orientation_desc">Kartenausrichtung</string>
     <string name="map_north_up">Karte: Norden oben</string>
     <string name="map_heading_up">Karte: Fahrtrichtung oben</string>
-    <string name="heading_src_gps">" · Kurs per GPS"</string>
-    <string name="heading_src_mag">" · Kurs per Kompass"</string>
+    <string name="heading_src_gps">" · du %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · du %1$.0f° (Kompass)"</string>
+    <string name="no_compass_sensor">Telefon ohne Kompass: gehe los, um den GPS-Kurs zu nutzen</string>
+    <string name="calibrate_hint">Kompass muss kalibriert werden: bewege das Telefon in einer Acht.</string>
+    <string name="about_title">Über</string>
+    <string name="about_msg">Version %1$s\n\nFindet Radiosonden in deiner Nähe, auch solche, die vor langer Zeit gelandet sind.\n\nDaten: SondeHub (sondehub.org)\nKarte: © OpenStreetMap-Mitwirkende</string>
+    <string name="check_updates">Nach Updates suchen</string>
+    <string name="upd_title">Updates</string>
+    <string name="upd_latest">Du verwendest die neueste Version (%1$s).</string>
+    <string name="upd_none">Auf der PT2VHF-Website wurde keine veröffentlichte Version gefunden.</string>
+    <string name="upd_new_title">Neue Version verfügbar</string>
+    <string name="upd_new_msg">Version %1$s (installiert: %2$s)\n\n%3$s\n\nDie Datei wird von der PT2VHF-Website geladen und per SHA-256 geprüft. Android fragt vor der Installation nach.</string>
+    <string name="upd_later">Nicht jetzt</string>
+    <string name="upd_download">Herunterladen</string>
+    <string name="upd_unavailable">Update-Server nicht erreichbar.</string>
+    <string name="upd_downloading">Update wird heruntergeladen…</string>
+    <string name="upd_sig_title">Inkompatible Signatur</string>
+    <string name="upd_sig_msg">Diese APK ist mit einem anderen Zertifikat signiert als die installierte App. Android installiert sie erst nach Deinstallation der aktuellen Version.</string>
+    <string name="upd_perm_title">Installation erlauben</string>
+    <string name="upd_perm_msg">Erlaube die Installation aus dieser Quelle und suche dann erneut nach Updates.</string>
+    <string name="upd_settings">Einstellungen</string>
+    <string name="upd_failed">Update-Download fehlgeschlagen: %1$s</string>
 </resources>

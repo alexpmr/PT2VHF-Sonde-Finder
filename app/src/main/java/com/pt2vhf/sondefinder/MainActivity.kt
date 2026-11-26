@@ -154,6 +154,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.segLand).setOnClickListener { targetLanding = true; render() }
         findViewById<View>(R.id.btnCenter).setOnClickListener { fitAll() }
         findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
+        findViewById<View>(R.id.btnAbout).setOnClickListener { showAbout() }
+        UpdateManager.check(this, false)
         findViewById<View>(R.id.btnCenter).setOnLongClickListener { fitEverything(); true }
         findViewById<View>(R.id.btnCopy).setOnClickListener { copyCoords() }
         findViewById<View>(R.id.btnNav).setOnClickListener { navigate() }
@@ -165,9 +167,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         super.onResume()
         map.onResume()
         startLocation()
-        sensors.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.let {
-            sensors.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
-        }
+        registerCompass()
         ui.post(poll)
         ui.post(tick)
     }
@@ -436,7 +436,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (firstFix) ui.post { fetch() }
         // Moving (>= ~7 km/h): the GPS course is the travel direction and is immune to
         // magnetic interference (car body, mounts, electronics).
-        if (location.hasBearing() && location.hasSpeed() && location.speed >= 2.0f &&
+        if (location.hasBearing() && location.hasSpeed() && location.speed >= 1.2f &&
             (!location.hasBearingAccuracy() || location.bearingAccuracyDegrees <= 30f)) {
             gpsCourse = location.bearing; gpsCourseAt = System.currentTimeMillis()
             updateHeading()
@@ -454,8 +454,16 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private val ori = FloatArray(3)
 
     override fun onSensorChanged(e: SensorEvent) {
-        if (e.sensor.type != Sensor.TYPE_ROTATION_VECTOR) return
-        SensorManager.getRotationMatrixFromVector(rot, e.values)
+        when (e.sensor.type) {
+            Sensor.TYPE_ROTATION_VECTOR -> SensorManager.getRotationMatrixFromVector(rot, e.values)
+            Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_MAGNETIC_FIELD -> {
+                val buf = if (e.sensor.type == Sensor.TYPE_ACCELEROMETER) { haveGrav = true; grav } else { haveGeo = true; geo }
+                for (i in 0..2) buf[i] += (e.values[i] - buf[i]) * 0.2f   // low-pass
+                if (!haveGrav || !haveGeo) return
+                if (!SensorManager.getRotationMatrix(rot, null, grav, geo)) return
+            }
+            else -> return
+        }
         // rot maps device axes to world (x = East, y = North, z = Up).
         // Lying flat (screen up/down) the heading is where the TOP of the phone points;
         // standing up (hand or car mount) it is where the BACK of the phone points.
@@ -524,7 +532,43 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<ImageView>(R.id.chipArrow).rotation = chipBearing - 45f + map.mapOrientation
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        val t = sensor?.type ?: return
+        if ((t == Sensor.TYPE_MAGNETIC_FIELD || t == Sensor.TYPE_ROTATION_VECTOR) &&
+            accuracy <= SensorManager.SENSOR_STATUS_ACCURACY_LOW && !calibrationHintShown) {
+            calibrationHintShown = true
+            Toast.makeText(this, R.string.calibrate_hint, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private val grav = FloatArray(3)
+    private val geo = FloatArray(3)
+    private var haveGrav = false
+    private var haveGeo = false
+    private var calibrationHintShown = false
+    private var compassSensor = true
+
+    /**
+     * Rotation vector only when the phone has a gyroscope; many phones without one expose no
+     * (or an unreliable) rotation vector. Otherwise the classic accelerometer + magnetometer.
+     */
+    private fun registerCompass() {
+        val gyro = sensors.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        val rv = sensors.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        val acc = sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val mag = sensors.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        compassSensor = true
+        if (gyro != null && rv != null) {
+            sensors.registerListener(this, rv, SensorManager.SENSOR_DELAY_UI)
+        } else if (acc != null && mag != null) {
+            sensors.registerListener(this, acc, SensorManager.SENSOR_DELAY_UI)
+            sensors.registerListener(this, mag, SensorManager.SENSOR_DELAY_UI)
+        } else if (rv != null) {
+            sensors.registerListener(this, rv, SensorManager.SENSOR_DELAY_UI)
+        } else {
+            compassSensor = false
+        }
+    }
 
     // ---------------------------------------------------------------- rendering
 
@@ -734,7 +778,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         }
         if (tgt == null || u == null) {
             compass.bearing = null
-            txt(R.id.cDist, "—"); txt(R.id.cBearing, if (u == null) "aguardando GPS" else "")
+            txt(R.id.cDist, "—"); txt(R.id.cBearing, if (u == null) getString(R.string.waiting_gps_lc) else "")
             return
         }
         val r = FloatArray(2)
@@ -747,12 +791,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (rel > 180) rel -= 360f
         if (rel < -180) rel += 360f
         val turn = when {
-            !haveHeading -> getString(R.string.no_compass)
+            !haveHeading -> getString(if (compassSensor) R.string.no_compass else R.string.no_compass_sensor)
             abs(rel) <= 5 -> getString(R.string.straight_ahead)
             else -> getString(if (rel > 0) R.string.turn_right else R.string.turn_left, abs(rel))
         }
         txt(R.id.cBearing, getString(R.string.bearing_line, b, cardinal(b), turn) +
-            if (!haveHeading) "" else getString(if (headingFromGps) R.string.heading_src_gps else R.string.heading_src_mag))
+            if (!haveHeading) "" else getString(if (headingFromGps) R.string.heading_src_gps else R.string.heading_src_mag, heading))
     }
 
     // ---------------------------------------------------------------- selection & filter
@@ -932,6 +976,18 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     // ---------------------------------------------------------------- actions
+
+    private fun showAbout() {
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.app_name)
+            .setMessage(getString(R.string.about_msg, UpdateManager.installedVersion(this)))
+            .setPositiveButton(R.string.check_updates) { _, _ -> UpdateManager.check(this, true) }
+            .setNeutralButton("www.PT2VHF.com") { _, _ ->
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pt2vhf.com"))) } catch (_: Exception) {}
+            }
+            .setNegativeButton(R.string.close, null)
+            .show()
+    }
 
     private fun copyCoords() {
         val s = sonde ?: return

@@ -58,7 +58,7 @@
     <string name="failed_by">Nieudane poszukiwania zgłosił %1$s</string>
     <string name="high_last">Ostatni pakiet %1$s nad tobą: sonda mogła spaść dalej%2$s.</string>
     <string name="along_heading">, kurs %1$.0f° %2$s</string>
-    <string name="no_compass">brak kompasu</string>
+    <string name="no_compass">kompas niegotowy: tarcza z północą u góry</string>
     <string name="straight_ahead">prosto</string>
     <string name="turn_right">skręć %1$.0f° w prawo</string>
     <string name="turn_left">skręć %1$.0f° w lewo</string>
@@ -114,6 +114,26 @@
     <string name="map_orientation_desc">Orientacja mapy</string>
     <string name="map_north_up">Mapa: północ u góry</string>
     <string name="map_heading_up">Mapa: kierunek u góry</string>
-    <string name="heading_src_gps">" · kurs z GPS"</string>
-    <string name="heading_src_mag">" · kurs z kompasu"</string>
+    <string name="heading_src_gps">" · ty %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · ty %1$.0f° (kompas)"</string>
+    <string name="no_compass_sensor">telefon bez kompasu: idź, aby użyć kursu GPS</string>
+    <string name="calibrate_hint">Kompas wymaga kalibracji: poruszaj telefonem, rysując ósemkę.</string>
+    <string name="about_title">O aplikacji</string>
+    <string name="about_msg">Wersja %1$s\n\nZnajduje radiosondy w pobliżu, także te, które spadły dawno temu.\n\nDane: SondeHub (sondehub.org)\nMapa: © współtwórcy OpenStreetMap</string>
+    <string name="check_updates">Sprawdź aktualizacje</string>
+    <string name="upd_title">Aktualizacje</string>
+    <string name="upd_latest">Używasz najnowszej wersji (%1$s).</string>
+    <string name="upd_none">Na stronie PT2VHF nie znaleziono opublikowanej wersji.</string>
+    <string name="upd_new_title">Dostępna nowa wersja</string>
+    <string name="upd_new_msg">Wersja %1$s (masz %2$s)\n\n%3$s\n\nPlik jest pobierany ze strony PT2VHF i sprawdzany SHA-256. Android poprosi o potwierdzenie instalacji.</string>
+    <string name="upd_later">Nie teraz</string>
+    <string name="upd_download">Pobierz</string>
+    <string name="upd_unavailable">Serwer aktualizacji niedostępny.</string>
+    <string name="upd_downloading">Pobieranie aktualizacji…</string>
+    <string name="upd_sig_title">Niezgodny podpis</string>
+    <string name="upd_sig_msg">Ten APK jest podpisany innym certyfikatem niż zainstalowana aplikacja. Android zainstaluje go dopiero po odinstalowaniu obecnej wersji.</string>
+    <string name="upd_perm_title">Zezwól na instalację</string>
+    <string name="upd_perm_msg">Zezwól na instalowanie aplikacji z tego źródła i ponownie sprawdź aktualizacje.</string>
+    <string name="upd_settings">Ustawienia</string>
+    <string name="upd_failed">Nie udało się pobrać aktualizacji: %1$s</string>
 </resources>

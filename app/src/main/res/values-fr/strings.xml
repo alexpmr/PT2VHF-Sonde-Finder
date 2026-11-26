@@ -58,7 +58,7 @@
     <string name="failed_by">Recherche infructueuse signalée par %1$s</string>
     <string name="high_last">Dernier paquet %1$s au-dessus de vous : la sonde a pu tomber plus loin%2$s.</string>
     <string name="along_heading">, au cap %1$.0f° %2$s</string>
-    <string name="no_compass">pas de boussole</string>
+    <string name="no_compass">boussole indisponible : cadran nord en haut</string>
     <string name="straight_ahead">tout droit</string>
     <string name="turn_right">tournez de %1$.0f° à droite</string>
     <string name="turn_left">tournez de %1$.0f° à gauche</string>
@@ -113,6 +113,26 @@
     <string name="map_orientation_desc">Orientation de la carte</string>
     <string name="map_north_up">Carte : nord en haut</string>
     <string name="map_heading_up">Carte : cap en haut</string>
-    <string name="heading_src_gps">" · cap par GPS"</string>
-    <string name="heading_src_mag">" · cap par boussole"</string>
+    <string name="heading_src_gps">" · vous %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · vous %1$.0f° (boussole)"</string>
+    <string name="no_compass_sensor">téléphone sans boussole : marchez pour utiliser le cap GPS</string>
+    <string name="calibrate_hint">La boussole doit être calibrée : décrivez un 8 avec le téléphone.</string>
+    <string name="about_title">À propos</string>
+    <string name="about_msg">Version %1$s\n\nTrouve les radiosondes près de vous, y compris celles tombées il y a longtemps.\n\nDonnées : SondeHub (sondehub.org)\nCarte : © contributeurs OpenStreetMap</string>
+    <string name="check_updates">Rechercher des mises à jour</string>
+    <string name="upd_title">Mises à jour</string>
+    <string name="upd_latest">Vous utilisez la dernière version (%1$s).</string>
+    <string name="upd_none">Aucune version publiée trouvée sur le site PT2VHF.</string>
+    <string name="upd_new_title">Nouvelle version disponible</string>
+    <string name="upd_new_msg">Version %1$s (vous avez la %2$s)\n\n%3$s\n\nLe fichier est téléchargé depuis le site PT2VHF et vérifié par SHA-256. Android demandera de confirmer l\'installation.</string>
+    <string name="upd_later">Plus tard</string>
+    <string name="upd_download">Télécharger</string>
+    <string name="upd_unavailable">Site de mise à jour indisponible.</string>
+    <string name="upd_downloading">Téléchargement de la mise à jour…</string>
+    <string name="upd_sig_title">Signature incompatible</string>
+    <string name="upd_sig_msg">Cet APK est signé avec un certificat différent de l\'app installée. Android ne l\'installe qu\'après désinstallation de la version actuelle.</string>
+    <string name="upd_perm_title">Autoriser l\'installation</string>
+    <string name="upd_perm_msg">Autorisez l\'installation d\'apps depuis cette source, puis relancez la recherche.</string>
+    <string name="upd_settings">Paramètres</string>
+    <string name="upd_failed">Échec du téléchargement : %1$s</string>
 </resources>

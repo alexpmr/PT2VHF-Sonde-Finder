@@ -58,7 +58,7 @@
     <string name="failed_by">Ricerca senza successo segnalata da %1$s</string>
     <string name="high_last">Ultimo pacchetto %1$s sopra di te: la sonda potrebbe essere caduta più avanti%2$s.</string>
     <string name="along_heading">, in rotta %1$.0f° %2$s</string>
-    <string name="no_compass">nessuna bussola</string>
+    <string name="no_compass">bussola non pronta: quadrante con nord in alto</string>
     <string name="straight_ahead">dritto</string>
     <string name="turn_right">gira di %1$.0f° a destra</string>
     <string name="turn_left">gira di %1$.0f° a sinistra</string>
@@ -113,6 +113,26 @@
     <string name="map_orientation_desc">Orientamento mappa</string>
     <string name="map_north_up">Mappa: nord in alto</string>
     <string name="map_heading_up">Mappa: rotta in alto</string>
-    <string name="heading_src_gps">" · rotta da GPS"</string>
-    <string name="heading_src_mag">" · rotta da bussola"</string>
+    <string name="heading_src_gps">" · tu %1$.0f° (GPS)"</string>
+    <string name="heading_src_mag">" · tu %1$.0f° (bussola)"</string>
+    <string name="no_compass_sensor">telefono senza bussola: cammina per usare la rotta GPS</string>
+    <string name="calibrate_hint">La bussola va calibrata: muovi il telefono disegnando un 8.</string>
+    <string name="about_title">Info</string>
+    <string name="about_msg">Versione %1$s\n\nTrova le radiosonde vicino a te, anche quelle cadute molto tempo fa.\n\nDati: SondeHub (sondehub.org)\nMappa: © contributori di OpenStreetMap</string>
+    <string name="check_updates">Cerca aggiornamenti</string>
+    <string name="upd_title">Aggiornamenti</string>
+    <string name="upd_latest">Stai usando la versione più recente (%1$s).</string>
+    <string name="upd_none">Nessuna versione pubblicata trovata sul sito PT2VHF.</string>
+    <string name="upd_new_title">Nuova versione disponibile</string>
+    <string name="upd_new_msg">Versione %1$s (hai la %2$s)\n\n%3$s\n\nIl file viene scaricato dal sito PT2VHF e verificato con SHA-256. Android chiederà conferma per l\'installazione.</string>
+    <string name="upd_later">Non ora</string>
+    <string name="upd_download">Scarica</string>
+    <string name="upd_unavailable">Sito di aggiornamento non disponibile.</string>
+    <string name="upd_downloading">Download dell\'aggiornamento…</string>
+    <string name="upd_sig_title">Firma incompatibile</string>
+    <string name="upd_sig_msg">Questo APK è firmato con un certificato diverso dall\'app installata. Android lo installa solo dopo aver disinstallato la versione attuale.</string>
+    <string name="upd_perm_title">Consenti installazione</string>
+    <string name="upd_perm_msg">Consenti l\'installazione di app da questa fonte, poi cerca di nuovo gli aggiornamenti.</string>
+    <string name="upd_settings">Impostazioni</string>
+    <string name="upd_failed">Download dell\'aggiornamento non riuscito: %1$s</string>
 </resources>

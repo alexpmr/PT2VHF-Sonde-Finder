@@ -39,6 +39,17 @@ Requer JDK 17+ e Android SDK (compileSdk 36).
 ```
 
 O APK sai em `app/build/outputs/apk/release/` (assinado com a chave de debug, para instalação direta).
+### Assinatura e atualizações
+
+O app verifica uma vez por dia (e pelo botão ⓘ › Verificar atualizações) o catálogo
+`https://www.pt2vhf.com/update.php?product=sonde&platform=android&kind=apk`, no mesmo formato do
+PT2VHF Speed Alert (versão, notas, link `download.php?product=sonde&file=PT2VHF-Sonde-Finder-vX.Y.Z.apk`,
+tamanho e SHA-256). O APK baixado é conferido e entregue ao instalador do Android.
+
+Para atualizar por cima, todas as versões publicadas precisam da **mesma chave permanente**. Configure os
+secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`
+no repositório; sem eles o workflow gera um APK com chave de debug (sufixo `-DEBUG-KEY`), que não deve ser publicado.
+
 O workflow **Build APK** do GitHub Actions gera o APK a cada push em `main` (aba Actions → artefato).
 
 Requer Android 8.0+ e permissão de localização.

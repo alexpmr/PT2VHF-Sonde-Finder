@@ -153,4 +153,6 @@
     <string name="style_fiord">Bleu sombre</string>
     <string name="style_positron">Clair</string>
     <string name="style_liberty">Coloré</string>
+    <string name="sort_by_distance">⇅ Par distance</string>
+    <string name="sort_by_age">⇅ Par âge</string>
 </resources>

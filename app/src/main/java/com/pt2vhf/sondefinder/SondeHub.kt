@@ -43,7 +43,13 @@ object SondeHub {
         try {
             val code = c.responseCode
             if (code !in 200..299) throw RuntimeException("HTTP $code")
-            return c.inputStream.bufferedReader().use { it.readText() }
+            // Some endpoints always answer gzip; decompress if the stack did not already.
+            val raw = java.io.BufferedInputStream(c.inputStream)
+            raw.mark(2)
+            val b0 = raw.read(); val b1 = raw.read()
+            raw.reset()
+            val stream = if (b0 == 0x1f && b1 == 0x8b) java.util.zip.GZIPInputStream(raw) else raw
+            return stream.bufferedReader().use { it.readText() }
         } finally {
             c.disconnect()
         }
@@ -135,6 +141,65 @@ object SondeHub {
             if (pts.isNotEmpty()) return Prediction(pts)
         }
         return null
+    }
+
+    /** A past flight from /sondes/summary: last received frame, predicted landing and key frames. */
+    data class Flight(val sonde: Sonde, val landing: Point?, val frames: List<Point>)
+
+    private fun frame(o: JSONObject): Point? {
+        val la = o.d("lat"); val lo = o.d("lon")
+        if (la.isNaN() || lo.isNaN()) return null
+        return Point(la, lo, o.d("alt"), parseTime(o.optString("datetime", null)))
+    }
+
+    private fun summaryChunk(lat: Double, lon: Double, distM: Int, from: Long, to: Long, depth: Int, out: MutableMap<String, Flight>) {
+        val f = Instant.ofEpochMilli(from).toString(); val t = Instant.ofEpochMilli(to).toString()
+        val root = JSONObject(get("/sondes/summary?lat=$lat&lon=$lon&distance=$distM&from=$f&to=$t&predictions_only=false&limit=200"))
+        val r = root.optJSONObject("radiosondes") ?: return
+        // 200 is the server cap: split the period so nothing is cut off
+        if (r.length() >= 200 && depth < 6 && to - from > 3600_000L) {
+            val mid = from + (to - from) / 2
+            summaryChunk(lat, lon, distM, from, mid, depth + 1, out)
+            summaryChunk(lat, lon, distM, mid, to, depth + 1, out)
+            return
+        }
+        for (serial in r.keys()) {
+            val v = r.optJSONObject(serial) ?: continue
+            val arr = v.optJSONArray("summary") ?: continue
+            if (arr.length() == 0) continue
+            val last = arr.optJSONObject(arr.length() - 1) ?: continue
+            val sonde = parseSonde(serial, last) ?: continue
+            val frames = (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.let { o -> frame(o) } }
+            val pl = v.optJSONObject("predicted_landing")?.let { o ->
+                val la = o.d("lat"); val lo = o.d("lon")
+                if (la.isNaN() || lo.isNaN()) null else Point(la, lo, o.d("alt"), 0)
+            }
+            val prev = out[serial]
+            if (prev == null || sonde.timeMs > prev.sonde.timeMs) out[serial] = Flight(sonde, pl, frames)
+        }
+    }
+
+    /**
+     * Flights over the last [lastSec] whose last received position OR predicted landing is within
+     * [radiusM]. The server matches its area on another point of the flight (launch side), so the
+     * query uses a wider area and the result is filtered here; the period is cut in 30-day chunks.
+     */
+    fun history(lat: Double, lon: Double, radiusM: Int, lastSec: Long): List<Flight> {
+        val now = System.currentTimeMillis()
+        val start = now - lastSec * 1000
+        val out = HashMap<String, Flight>()
+        val wide = (radiusM + 150_000).coerceAtMost(700_000)
+        var to = now
+        while (to > start) {
+            val from = maxOf(start, to - 30L * 86400_000L)
+            summaryChunk(lat, lon, wide, from, to, 0, out)
+            to = from
+        }
+        val res = FloatArray(1)
+        fun near(la: Double, lo: Double): Boolean {
+            android.location.Location.distanceBetween(lat, lon, la, lo, res); return res[0] <= radiusM
+        }
+        return out.values.filter { near(it.sonde.lat, it.sonde.lon) || (it.landing != null && near(it.landing.lat, it.landing.lon)) }
     }
 
     /** Recovery reports (found / not found) within the area over the last [lastSec] (0 = all time). */

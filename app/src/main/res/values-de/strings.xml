@@ -152,4 +152,6 @@
     <string name="style_fiord">Dunkelblau</string>
     <string name="style_positron">Hell</string>
     <string name="style_liberty">Farbig</string>
+    <string name="sort_by_distance">⇅ Nach Entfernung</string>
+    <string name="sort_by_age">⇅ Nach Alter</string>
 </resources>

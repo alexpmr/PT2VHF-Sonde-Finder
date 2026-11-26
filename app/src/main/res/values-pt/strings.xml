@@ -153,4 +153,6 @@
     <string name="style_fiord">Escuro azulado</string>
     <string name="style_positron">Claro</string>
     <string name="style_liberty">Colorido</string>
+    <string name="sort_by_distance">⇅ Por distância</string>
+    <string name="sort_by_age">⇅ Por idade</string>
 </resources>

@@ -153,4 +153,6 @@
     <string name="style_fiord">Oscuro azulado</string>
     <string name="style_positron">Claro</string>
     <string name="style_liberty">Colorido</string>
+    <string name="sort_by_distance">⇅ Por distancia</string>
+    <string name="sort_by_age">⇅ Por antigüedad</string>
 </resources>

@@ -154,4 +154,6 @@
     <string name="style_fiord">Ciemnoniebieski</string>
     <string name="style_positron">Jasny</string>
     <string name="style_liberty">Kolorowy</string>
+    <string name="sort_by_distance">⇅ Wg odległości</string>
+    <string name="sort_by_age">⇅ Wg wieku</string>
 </resources>

@@ -48,7 +48,7 @@ import kotlin.math.roundToInt
 class MainActivity : Activity(), SensorEventListener, LocationListener {
 
     companion object {
-        val RADII_KM = intArrayOf(10, 25, 50, 100, 200, 300, 500)
+        const val MAX_RADIUS_KM = 25
         val WINDOWS_H = intArrayOf(1, 3, 6, 12, 24, 48, 168, 360, 720, 2160, 4320, 8760)
         const val POLL_MS = 10_000L       // nearby poll interval (be gentle with SondeHub)
         const val DETAIL_MS = 30_000L     // track / prediction refresh
@@ -73,6 +73,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var sonde: Sonde? = null
     private var track: List<Point> = emptyList()
     private var pred: Prediction? = null
+    // history (/sondes/summary), cached: it only changes when the filter or place changes
+    private var histFlights: Map<String, SondeHub.Flight> = emptyMap()
+    private var histKey = ""
+    private var histAt = 0L
+    private var sortByAge = false
     private var detailSerial: String? = null
     private var lastDetailAt = 0L
     private var netError: String? = null
@@ -115,13 +120,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         locations = getSystemService(LOCATION_SERVICE) as LocationManager
 
         getSharedPreferences("cfg", MODE_PRIVATE).let {
-            radiusKm = it.getInt("radiusKm", 100); windowH = it.getInt("windowH", 6)
+            radiusKm = it.getInt("radiusKm", 10).coerceIn(1, MAX_RADIUS_KM); windowH = it.getInt("windowH", 6)
             hideRecovered = it.getBoolean("hideRecovered", false)
             mapHeadingUp = it.getBoolean("mapHeadingUp", false)
             compassOffset = it.getFloat("compassOffset", 0f)
             gpsWhenMoving = it.getBoolean("gpsWhenMoving", false)
             mapStyle = it.getString("mapStyle", "dark") ?: "dark"
             mapBrightness = it.getInt("mapBrightness", 0)
+            sortByAge = it.getBoolean("sortByAge", false)
         }
         setupMap(savedInstanceState)
         if (mapHeadingUp) ui.postDelayed({ setMapHeadingUp(true, false) }, 1000)
@@ -267,6 +273,9 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val wantRec = System.currentTimeMillis() - lastRecAt > 120_000L
         val hide = hideRecovered
         val knownRec = recoveries
+        val hKey = "$radiusM/$lastSec/${"%.2f".format(Locale.US, lat)}/${"%.2f".format(Locale.US, lon)}"
+        val wantHist = windowH > 72 && (hKey != histKey || System.currentTimeMillis() - histAt > 30 * 60_000L)
+        val knownHist = if (windowH > 72 && hKey == histKey) histFlights else emptyMap()
         io.execute {
             try {
                 val rec = if (wantRec) try {
@@ -274,7 +283,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                     SondeHub.recovered(lat, lon, radiusM, lastSec + 30 * 86400)
                 } catch (e: Exception) { null } else null
                 val recMap = rec ?: knownRec
-                val raw = SondeHub.nearby(lat, lon, radiusM, lastSec)
+                // live data covers only the last few days; older flights come from the summaries
+                val live = SondeHub.nearby(lat, lon, radiusM, minOf(lastSec, 3 * 86400))
+                val hist = if (wantHist) SondeHub.history(lat, lon, radiusM, lastSec.toLong()).associateBy { it.sonde.serial }
+                    else knownHist
+                val merged = HashMap<String, Sonde>()
+                for (f in hist.values) merged[f.sonde.serial] = f.sonde
+                for (o in live) { val p = merged[o.serial]; if (p == null || o.timeMs >= p.timeMs) merged[o.serial] = o }
+                val raw = merged.values.toList()
                 val list = if (hide) raw.filter { recMap[it.serial]?.recovered != true || it.serial == manual } else raw
                 val res = FloatArray(1)
                 val dist = { o: Sonde -> Location.distanceBetween(lat, lon, o.lat, o.lon, res); res[0] }
@@ -287,12 +303,19 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                 if (nearest != null && (nearest.serial != current || wantDetail)) {
                     tr = try { SondeHub.track(nearest.serial) } catch (e: Exception) { null }
                     pr = try { SondeHub.prediction(nearest.serial) } catch (e: Exception) { null }
+                    // old flights: no live track/prediction any more, use the archived summary
+                    val f = hist[nearest.serial]
+                    if (f != null) {
+                        if (tr.isNullOrEmpty()) tr = f.frames
+                        if (pr == null && f.landing != null) pr = Prediction(listOf(f.landing))
+                    }
                     gotDetail = true
                 }
                 ui.post {
                     if (radiusM != radiusKm * 1000 || lastSec != windowH * 3600 || manual != manualSerial) return@post // stale
                     netError = null
                     all = list
+                    if (wantHist) { histFlights = hist; histKey = hKey; histAt = System.currentTimeMillis() }
                     if (rec != null) { recoveries = rec; lastRecAt = System.currentTimeMillis() }
                     if (manual != null && list.none { it.serial == manual }) {
                         manualSerial = null
@@ -850,19 +873,31 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
         }
         var hide = hideRecovered
-        val rRow = LinearLayout(this)
         val wRow = LinearLayout(this)
         val hRow = LinearLayout(this)
         fun fill() {
-            rRow.removeAllViews(); wRow.removeAllViews(); hRow.removeAllViews()
+            wRow.removeAllViews(); hRow.removeAllViews()
             hRow.addView(chip(getString(R.string.show_all), !hide) { hide = false; fill() })
             hRow.addView(chip(getString(R.string.hide_recovered), hide) { hide = true; fill() })
-            for (k in RADII_KM) rRow.addView(chip("$k km", k == r) { r = k; fill() })
             for (h in WINDOWS_H) wRow.addView(chip(windowLabel(h), h == w) { w = h; fill() })
         }
         fill()
         box.addView(label(getString(R.string.radius_label)))
-        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(rRow) })
+        // radius: slider 1–25 km
+        val rValue = TextView(this).apply { setTextColor(WHITE); textSize = 14f; text = "$r km"; minWidth = (56 * d).toInt(); gravity = Gravity.END }
+        val rSeek = android.widget.SeekBar(this).apply {
+            max = MAX_RADIUS_KM - 1; progress = r - 1
+            setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: android.widget.SeekBar?, p: Int, fromUser: Boolean) { r = p + 1; rValue.text = "$r km" }
+                override fun onStartTrackingTouch(sb: android.widget.SeekBar?) {}
+                override fun onStopTrackingTouch(sb: android.widget.SeekBar?) {}
+            })
+        }
+        box.addView(LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(rSeek, LinearLayout.LayoutParams(0, (44 * d).toInt(), 1f))
+            addView(rValue)
+        })
         box.addView(label(getString(R.string.window_label)))
         box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(wRow) })
         box.addView(label(getString(R.string.recovered_label)))
@@ -879,7 +914,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                 radiusKm = r; windowH = w; hideRecovered = hide; lastRecAt = 0
                 getSharedPreferences("cfg", MODE_PRIVATE).edit().putInt("radiusKm", r).putInt("windowH", w)
                     .putBoolean("hideRecovered", hide).apply()
-                all = emptyList(); sonde = null; track = emptyList(); pred = null
+                all = emptyList(); sonde = null; track = emptyList(); pred = null; histKey = ""
                 manualSerial = null; autoFitDone = false; lastDetailAt = 0; emptyResult = false
                 render(); updateMap()
                 ui.removeCallbacks(poll); ui.post(poll)
@@ -893,7 +928,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         if (all.isEmpty()) { Toast.makeText(this, getString(R.string.no_sonde_filter), Toast.LENGTH_SHORT).show(); return }
         val res = FloatArray(1)
         val now = System.currentTimeMillis()
-        val sorted = all.sortedBy {
+        val sorted = if (sortByAge) all.sortedByDescending { it.timeMs } else all.sortedBy {
             if (u == null) 0f else { Location.distanceBetween(u.latitude, u.longitude, it.lat, it.lon, res); res[0] }
         }
         val items = ArrayList<String>()
@@ -912,6 +947,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             .setTitle(R.string.choose_title)
             .setItems(items.toTypedArray()) { _, i -> select(if (i == 0) null else sorted[i - 1].serial) }
             .setNegativeButton(R.string.close, null)
+            // ⇅ toggles the order (nearest first / most recent first) and reopens the list
+            .setNeutralButton(getString(if (sortByAge) R.string.sort_by_distance else R.string.sort_by_age)) { _, _ ->
+                sortByAge = !sortByAge
+                getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("sortByAge", sortByAge).apply()
+                showListDialog()
+            }
             .show()
     }
 

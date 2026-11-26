@@ -35,6 +35,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
@@ -156,6 +157,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
         findViewById<View>(R.id.btnAbout).setOnClickListener { showAbout() }
         if (BuildConfig.OTA) UpdateManager.check(this, false)
+        UsagePing.maybeSend(this)
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             // Android 13+ (and predictive back on 16): onBackPressed is no longer called
             onBackInvokedDispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { handleBack() }
@@ -1075,12 +1077,29 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     private fun showAbout() {
+        val d = resources.displayMetrics.density
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((22 * d).toInt(), (10 * d).toInt(), (22 * d).toInt(), 0)
+        }
+        box.addView(TextView(this).apply {
+            text = getString(R.string.about_msg, UpdateManager.installedVersion(this@MainActivity))
+            setTextColor(WHITE); textSize = 15f
+        })
+        box.addView(android.widget.CheckBox(this).apply {
+            text = getString(R.string.usage_label); setTextColor(WHITE); textSize = 14f
+            isChecked = UsagePing.enabled(this@MainActivity)
+            setPadding(0, (8 * d).toInt(), 0, (8 * d).toInt())
+            setOnCheckedChangeListener { _, on -> UsagePing.setEnabled(this@MainActivity, on) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = (12 * d).toInt()
+        })
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.app_name)
-            .setMessage(getString(R.string.about_msg, UpdateManager.installedVersion(this)))
+            .setView(ScrollView(this).apply { addView(box) })
             .apply { if (BuildConfig.OTA) setPositiveButton(R.string.check_updates) { _, _ -> UpdateManager.check(this@MainActivity, true) } }
             .setNeutralButton("www.PT2VHF.com") { _, _ ->
-                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pt2vhf.com"))) } catch (_: Exception) {}
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pt2vhf.com/sonde"))) } catch (_: Exception) {}
             }
             .setNegativeButton(R.string.close, null)
             .show()

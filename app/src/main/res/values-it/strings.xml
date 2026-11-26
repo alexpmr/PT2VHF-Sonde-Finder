@@ -158,4 +158,5 @@
     <string name="exit_title">Chiudere Sonde Finder?</string>
     <string name="exit_msg">La ricerca e il rilevatore di prossimità si fermeranno.</string>
     <string name="exit_yes">Chiudi</string>
+    <string name="usage_label">Conta questo telefono nelle statistiche anonime d\'uso (codice casuale, senza posizione)</string>
 </resources>

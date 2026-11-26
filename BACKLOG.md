@@ -4,17 +4,14 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Contagem de usuários pela verificação de versão** (pedido do mantenedor, 26/11/2026). O app consulta o site
-  (`update.php?product=sonde`) enviando um identificador único e anônimo da instalação (UUID gerado no primeiro
-  uso, guardado só no aparelho), independente da versão, para o site contar usuários totais e ativos.
-  Vale também para a versão do Play (só a consulta, sem o atualizador). Informar na política de privacidade.
-  Ligado ao item do site "contadores de usuários do Sonde Finder".
-
-- **Atualização automática**: depende do site publicar `product=sonde` (feito na v1.8.0) e dos secrets da chave
-  permanente no GitHub (o CI assina com eles; sem eles gera `-DEBUG-KEY`).
+Nenhum item pendente.
 
 ## Resolvido
 
+- **v1.9.0** — Contagem de usuários: o app envia ao site (`sonde_activity.php`), no máximo 2×/dia, um
+  identificador aleatório da instalação (UUID guardado só no aparelho), a versão e a plataforma, nas versões do
+  site e do Play; opção para desligar em ⓘ. Política própria em `/privacidade-sonde`. O item "Atualização
+  automática pelo site" deixou de valer: a distribuição é só pelo Google Play (pedido do mantenedor).
 - **v1.8.0** — Confirmar antes de fechar o app (Voltar no mapa pergunta; na bússola volta ao mapa; Android 8–16).
   Seta do selo de distância: estava certa, mas o ícone assimétrico girado parecia apontar para o outro lado;
   trocado por seta simétrica. Altitude/distância/idade sem quebra de linha na lista (espaço não separável).

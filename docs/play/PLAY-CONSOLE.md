@@ -3,7 +3,7 @@
 Material e roteiro para criar o app na Play Console e abrir o teste fechado.
 
 - Pacote: `com.pt2vhf.sondefinder`
-- Política de privacidade: https://www.pt2vhf.com/privacidade
+- Política de privacidade: https://www.pt2vhf.com/privacidade-sonde
 - Página do app: https://www.pt2vhf.com/sonde
 - Ícone 512×512: `docs/play/icon-512.png`
 - Gráfico de destaque 1024×500: `docs/play/feature-graphic-1024x500.png`
@@ -53,7 +53,7 @@ Sonde data: SondeHub (sondehub.org). Map: © OpenStreetMap contributors, OpenFre
 
 ## Conteúdo do app (respostas)
 
-- Política de privacidade: https://www.pt2vhf.com/privacidade
+- Política de privacidade: https://www.pt2vhf.com/privacidade-sonde
 - Anúncios: não contém.
 - Acesso ao app: todas as funções sem login.
 - Público-alvo: 18+ (não direcionado a crianças).
@@ -65,7 +65,10 @@ Sonde data: SondeHub (sondehub.org). Map: © OpenStreetMap contributors, OpenFre
     Marcar como "compartilhada" com terceiro (SondeHub) para "Funcionalidade do app", processada em trânsito,
     obrigatória para a função principal.
   - Dados criptografados em trânsito: sim (HTTPS). Exclusão de dados: não há conta nem dados guardados.
-  - Nenhum outro dado (sem conta, sem contatos, sem identificadores de publicidade, sem análise).
+  - **IDs do dispositivo ou outros IDs** — identificador aleatório criado pelo app (não é ID do aparelho nem de
+    publicidade), enviado ao www.pt2vhf.com no máximo 2×/dia com a versão, para contar usuários. Coletado, não
+    compartilhado, finalidade "Análise", **opcional** (o usuário desliga em ⓘ). No servidor fica só um HMAC por até 400 dias.
+  - Nenhum outro dado (sem conta, sem contatos, sem identificadores de publicidade, sem SDK de análise).
 - Permissões sensíveis: localização em primeiro plano (sem localização em segundo plano);
   `REQUEST_INSTALL_PACKAGES` deve sair da versão do Play (o Play não permite atualização fora da loja).
 

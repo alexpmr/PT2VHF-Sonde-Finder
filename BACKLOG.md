@@ -10,6 +10,13 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
   até X km de onde o usuário está (X definido pelo usuário).
 - **Conexão mais persistente** — verificar a conexão a cada 5 segundos, para não ficar muito tempo sem
   receber pacotes de uma sonda que está no ar.
+  Relato de 26/11/2026 (v1.9.0): sonda ainda voando aparecia com o último pacote de 25 min atrás, enquanto o
+  SondeHub já tinha pacote de segundos antes (X2142717, RS41, ~11 km descendo, via PT2PAG — checado às 01:13 UTC).
+  Causa provável: `MainActivity` agenda um `fetch()` a cada 10 s num executor de uma thread só
+  (`newSingleThreadExecutor`) sem esperar o anterior terminar; se um ciclo (lista + trilha de 6 h + previsão)
+  demora mais que 10 s no 4G, a fila cresce sem limite e os dados ficam cada vez mais atrasados, e o indicador
+  continua "Ao vivo". Corrigir: não enfileirar novo ciclo enquanto o anterior roda (ou descartar os pendentes),
+  buscar a lista separada da trilha/previsão e avisar quando o dado estiver velho.
 
 ## Resolvido
 

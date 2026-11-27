@@ -24,7 +24,7 @@ prefs() { # $1 = map style, $2 = sheet collapsed
     <int name="radiusKm" value="25" />
     <int name="windowH" value="720" />
     <boolean name="usagePing" value="false" />
-    <long name="updateCheckAt" value="9999999999999" />
+    <long name="lastUpdateCheck" value="9999999999999" />
     <string name="mapStyle">$1</string>
     <boolean name="sheetCollapsed" value="$2" />
 </map>

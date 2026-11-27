@@ -4,8 +4,11 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Campo "Pouso em X min" não funciona** (27/11/2026): relato do mantenedor; o campo de tempo até o pouso
-  (mapa e bússola) não mostra o valor esperado. Investigar a previsão (`/predictions`) e o cálculo de `etaText`.
+- **Campo "Pouso previsto" não funciona** (27/11/2026): relato do mantenedor; o campo de pouso (mapa e bússola)
+  não mostra o valor esperado. Comportamento pedido: se a sonda está **caindo**, mostrar em quanto tempo vai
+  pousar (ex.: "em 12 min"); se **já caiu**, mostrar o horário estimado em que pousou (ex.: "pousou ~14:32").
+  Investigar a previsão (`/predictions`) e o cálculo de `etaText` (hoje mostra "—" quando a sonda está sem sinal
+  há mais de 10 min).
 - **Tipo de mapa nas Configurações** (27/11/2026): escolher o tipo de mapa (escuro, claro, colorido, satélite…)
   também na tela de Configurações. Hoje o satélite já existe na 1.11.0, mas só no botão de estilo do mapa.
 - **Encolher o card de informações no mapa** (27/11/2026): na página do mapa, opção de recolher o card com os

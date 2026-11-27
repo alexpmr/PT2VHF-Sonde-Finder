@@ -6,6 +6,10 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 - **Campo "Pouso em X min" não funciona** (27/11/2026): relato do mantenedor; o campo de tempo até o pouso
   (mapa e bússola) não mostra o valor esperado. Investigar a previsão (`/predictions`) e o cálculo de `etaText`.
+- **Tipo de mapa nas Configurações** (27/11/2026): escolher o tipo de mapa (escuro, claro, colorido, satélite…)
+  também na tela de Configurações. Hoje o satélite já existe na 1.11.0, mas só no botão de estilo do mapa.
+- **Encolher o card de informações no mapa** (27/11/2026): na página do mapa, opção de recolher o card com os
+  dados da sonda para ver melhor o mapa (e expandir de novo).
 
 ## Resolvido
 

@@ -4,7 +4,8 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-Nenhum item pendente.
+- **Ãcone da sonda no mapa conforme a fase do voo** â subindo: Ã­cone de balÃ£o; caindo: Ã­cone de
+  paraquedas.
 
 ## Resolvido
 

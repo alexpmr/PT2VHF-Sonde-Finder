@@ -179,4 +179,9 @@
     <string name="upd_play_ready_msg">Die neue Version ist bereit. Starte die App neu, um sie zu installieren.</string>
     <string name="upd_play_restart">Neu starten</string>
     <string name="upd_play_later">Später</string>
+    <string name="sheet_toggle">Karte ein- oder ausklappen</string>
+    <string name="landing_place">Landeort</string>
+    <string name="last_place">Ort der letzten Position</string>
+    <string name="landed_label">Gelandet</string>
+    <string name="map_type_label">KARTENTYP</string>
 </resources>

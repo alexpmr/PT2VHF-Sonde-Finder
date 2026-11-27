@@ -10,8 +10,11 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 
 - **Mapa** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro, ou **satélite** Esri World Imagery com nomes de lugares; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
 - **Fase do voo no mapa**: balão enquanto a sonda sobe, paraquedas enquanto desce (ponto quando parada ou sem sinal há mais de 10 min).
-- **Configurações** (⚙ no topo): altitude em metros ou pés, temperatura em °C ou °F e o alarme de pouso. Nome e versão no topo ("PT2VHF Sonde Finder 1.11.0").
-- **Temperatura e pressão** do último pacote da sonda selecionada, no mapa e na bússola ("—" quando a sonda não envia o dado).
+- **Configurações** (⚙ no topo): altitude em metros ou pés, temperatura em °C ou °F, tipo de mapa (inclusive satélite) e o alarme de pouso. Nome e versão no topo ("PT2VHF Sonde Finder 1.11.0").
+- **Temperatura e pressão** do último pacote da sonda selecionada, no card do mapa ("—" quando a sonda não envia o dado).
+- **Pouso**: enquanto a sonda cai, quanto falta ("~12 min"); depois de cair, o horário estimado do pouso ("~14:32"). **Local do pouso** com rua, bairro e cidade (Geocoder do Android; Nominatim/OpenStreetMap como reserva).
+- **Card do mapa recolhível**: toque na alça do card para ver mais mapa.
+- **Bússola**: grande, com o ícone de balão (subindo) ou paraquedas (descendo) no centro e o endereço do alvo embaixo da distância.
 - **Filtro** de raio (10–500 km) e janela de tempo (1 h a 1 ano), salvo no aparelho.
 - **Seleção** automática (a que transmitiu mais recentemente) ou manual (toque no mapa ou pela lista).
 - **Bússola** com agulha ADF apontando para a última posição recebida ou para o pouso previsto; rumo, "vire X°", elevação para a antena e tempo até o pouso.

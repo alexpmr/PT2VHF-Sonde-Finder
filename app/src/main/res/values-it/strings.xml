@@ -180,4 +180,9 @@
     <string name="upd_play_ready_msg">La nuova versione è pronta. Riavvia l\'app per installarla.</string>
     <string name="upd_play_restart">Riavvia</string>
     <string name="upd_play_later">Più tardi</string>
+    <string name="sheet_toggle">Comprimi o espandi la scheda</string>
+    <string name="landing_place">Luogo di atterraggio</string>
+    <string name="last_place">Luogo dell’ultima posizione</string>
+    <string name="landed_label">Atterrata</string>
+    <string name="map_type_label">TIPO DI MAPPA</string>
 </resources>

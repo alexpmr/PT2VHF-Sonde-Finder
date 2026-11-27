@@ -181,4 +181,9 @@
     <string name="upd_play_ready_msg">Nowa wersja jest gotowa. Uruchom ponownie aplikację, aby ją zainstalować.</string>
     <string name="upd_play_restart">Uruchom ponownie</string>
     <string name="upd_play_later">Później</string>
+    <string name="sheet_toggle">Zwiń lub rozwiń kartę</string>
+    <string name="landing_place">Miejsce lądowania</string>
+    <string name="last_place">Miejsce ostatniej pozycji</string>
+    <string name="landed_label">Wylądowała</string>
+    <string name="map_type_label">TYP MAPY</string>
 </resources>

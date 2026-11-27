@@ -1,9 +1,9 @@
-Versão 1.11.0: tela de Configurações (⚙) com unidades — altitude em metros ou pés, temperatura em °C ou °F — e o alarme de pouso a X km; mapa de satélite de fundo (botão de estilo do mapa); campos de temperatura e pressão da sonda no mapa e na bússola; nome e versão no topo ("PT2VHF Sonde Finder 1.11.0"); atualização automática pelo site no APK e pelo Google Play na versão da loja.
+Versão 1.12.0: campo de pouso corrigido (sonda caindo: "~12 min" até o pouso; já no chão: horário estimado em que pousou); local do pouso com rua, bairro e cidade; tipo de mapa (inclusive satélite) nas Configurações; card do mapa recolhível; bússola maior e mais limpa, com balão subindo e paraquedas descendo no centro.
 
 Notas para o Google Play (pt-BR):
 
-- Nova tela de Configurações (⚙): altitude em metros ou pés, temperatura em °C ou °F e alarme de pouso a X km.
-- Mapa de satélite de fundo (botão de estilo do mapa › Satélite).
-- Temperatura e pressão da sonda no mapa e na bússola.
-- Versão do app no topo, ao lado do nome.
-- Aviso de atualização do Google Play dentro do app.
+- Campo de pouso: tempo até o pouso enquanto a sonda cai e horário estimado do pouso quando já caiu.
+- Local do pouso com rua, bairro e cidade.
+- Tipo de mapa (inclusive satélite) nas Configurações.
+- Card do mapa recolhível (toque na alça) para ver mais mapa.
+- Bússola maior, sem textos extras, com ícone de balão ou paraquedas.

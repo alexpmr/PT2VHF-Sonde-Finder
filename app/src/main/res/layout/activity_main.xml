@@ -256,7 +256,9 @@
             </FrameLayout>
 
             <!-- Bottom sheet -->
+            <!-- Tap the handle to collapse/expand: collapsed keeps only the serial/age row. -->
             <LinearLayout
+                android:id="@+id/sheet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="-24dp"
@@ -264,15 +266,32 @@
                 android:elevation="8dp"
                 android:orientation="vertical"
                 android:paddingStart="18dp"
-                android:paddingTop="8dp"
+                android:paddingTop="0dp"
                 android:paddingEnd="18dp"
                 android:paddingBottom="12dp">
 
-                <View
-                    android:layout_width="40dp"
-                    android:layout_height="4dp"
-                    android:layout_gravity="center_horizontal"
-                    android:background="#3A4752" />
+                <FrameLayout
+                    android:id="@+id/sheetHandle"
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:contentDescription="@string/sheet_toggle">
+
+                    <View
+                        android:layout_width="40dp"
+                        android:layout_height="4dp"
+                        android:layout_gravity="center"
+                        android:background="#3A4752" />
+
+                    <TextView
+                        android:id="@+id/sheetChevron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:text="▾"
+                        android:textColor="@color/muted"
+                        android:textSize="16sp" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -459,10 +478,30 @@
                     </LinearLayout>
 
                     <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                        <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
+                        <TextView android:id="@+id/vEtaLabel" style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
                         <TextView android:id="@+id/vEta" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- landing place as street, neighbourhood, city -->
+                <TextView
+                    android:id="@+id/vPlaceLabel"
+                    style="@style/Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/landing_place" />
+
+                <TextView
+                    android:id="@+id/vPlace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:text="—"
+                    android:textColor="@color/text"
+                    android:textSize="14sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -671,7 +710,7 @@
                     android:includeFontPadding="false"
                     android:text="—"
                     android:textColor="@color/text"
-                    android:textSize="56sp"
+                    android:textSize="42sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -680,19 +719,29 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:fontFamily="monospace"
-                    android:paddingBottom="6dp"
+                    android:paddingBottom="4dp"
                     android:text="km"
                     android:textColor="@color/text2"
-                    android:textSize="22sp" />
+                    android:textSize="18sp" />
             </LinearLayout>
+
+            <!-- target place (street, neighbourhood, city); the textual bearing line was removed -->
+            <TextView
+                android:id="@+id/cPlace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/text2"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/cBearing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text2"
-                android:textSize="14sp" />
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/btnHeadingMode"
@@ -733,23 +782,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <LinearLayout style="@style/StatCard" android:paddingTop="6dp" android:paddingBottom="6dp">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/temperature" />
-                    <TextView android:id="@+id/cTemp" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp" android:paddingTop="6dp" android:paddingBottom="6dp">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/pressure" />
-                    <TextView android:id="@+id/cPress" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginBottom="12dp"
                 android:orientation="horizontal">
 
@@ -766,7 +798,7 @@
                 </LinearLayout>
 
                 <LinearLayout style="@style/StatCard" android:layout_marginStart="8dp">
-                    <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
+                    <TextView android:id="@+id/cEtaLabel" style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/landing_in" />
                     <TextView android:id="@+id/cEta" style="@style/Value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="15sp" />
                     <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/forecast" />
                 </LinearLayout>

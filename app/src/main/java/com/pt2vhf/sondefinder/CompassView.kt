@@ -24,12 +24,19 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
     var needleColor = Color.parseColor("#FF8A3D")
         set(v) { field = v; invalidate() }
 
+    /** Flight phase of the selected sonde: balloon (UP) or parachute (DOWN) drawn on the hub. */
+    var phase = Phase.NONE
+        set(v) { if (field != v) { field = v; invalidate() } }
+
     private val cards: Array<String> = resources.getStringArray(R.array.cardinals4)
     private var shownHeading = 0f
     private var shownRel = 0f
     private var first = true
 
     private val d = resources.displayMetrics.density
+    private val upIcon by lazy { SondeIcons.balloon(52, d) }
+    private val downIcon by lazy { SondeIcons.parachute(52, d) }
+    private val iconBg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#121A21") }
     private val face = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#121A21") }
     private val rim = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#0F161C"); style = Paint.Style.STROKE
@@ -160,6 +167,13 @@ class CompassView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? =
         // hub
         c.drawCircle(cx, cy, 12 * d, hubFill)
         c.drawCircle(cx, cy, 12 * d, hubRing)
+
+        // flight phase on the hub (upright, it does not rotate with the card)
+        val icon = when (phase) { Phase.UP -> upIcon; Phase.DOWN -> downIcon; Phase.NONE -> null }
+        if (icon != null) {
+            c.drawCircle(cx, cy, icon.width / 2f, iconBg)
+            c.drawBitmap(icon, cx - icon.width / 2f, cy - icon.height / 2f, null)
+        }
 
         if (animating) postInvalidateOnAnimation()
     }

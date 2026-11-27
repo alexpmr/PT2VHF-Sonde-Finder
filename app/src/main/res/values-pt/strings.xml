@@ -180,4 +180,9 @@
     <string name="upd_play_ready_msg">A nova versão está pronta. Reinicie o app para instalar.</string>
     <string name="upd_play_restart">Reiniciar</string>
     <string name="upd_play_later">Depois</string>
+    <string name="sheet_toggle">Recolher ou expandir o card</string>
+    <string name="landing_place">Local do pouso</string>
+    <string name="last_place">Local da última posição</string>
+    <string name="landed_label">Pousou</string>
+    <string name="map_type_label">TIPO DE MAPA</string>
 </resources>

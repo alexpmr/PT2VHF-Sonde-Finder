@@ -177,6 +177,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
         findViewById<View>(R.id.btnAbout).setOnClickListener { showAbout() }
         findViewById<View>(R.id.btnSettings).setOnClickListener { showSettings() }
+        findViewById<View>(R.id.sheetHandle).setOnClickListener { setSheetCollapsed(!sheetCollapsed) }
+        setSheetCollapsed(getSharedPreferences("cfg", MODE_PRIVATE).getBoolean("sheetCollapsed", false))
         showTitle()
         StoreUpdate.check(this, false)
         UsagePing.maybeSend(this)
@@ -219,7 +221,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     override fun onDestroy() {
         super.onDestroy()
         map.onDestroy()
-        io.shutdownNow(); detailIo.shutdownNow(); alarmIo.shutdownNow()
+        io.shutdownNow(); detailIo.shutdownNow(); alarmIo.shutdownNow(); geoIo.shutdownNow()
     }
 
     // ---------------------------------------------------------------- map
@@ -683,25 +685,68 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         else -> getString(R.string.ago_y, sec / (365.0 * 86400))
     }
 
-    private fun etaSeconds(s: Sonde): Long? {
+    /**
+     * Landing field (map and compass): falling → "~12 min" under "Landing in";
+     * already down → "~14:32" (with the date when not today) under "Landed".
+     */
+    private fun renderLanding(s: Sonde?) {
         val now = System.currentTimeMillis()
         val land = pred?.landing
-        if (land != null && land.timeMs > now) return (land.timeMs - now) / 1000
-        if (!s.velV.isNaN() && s.velV < -0.5 && !s.alt.isNaN()) {
-            val ground = land?.alt?.takeIf { !it.isNaN() } ?: me?.altitude ?: 0.0
-            val t = ((s.alt - ground) / -s.velV).toLong() - (now - s.timeMs) / 1000
-            return if (t > 0) t else 0
+        val ground = land?.alt?.takeIf { !it.isNaN() } ?: me?.takeIf { it.hasAltitude() }?.altitude ?: 0.0
+        val l = if (s == null) null else FlightLogic.landing(s.alt, s.velV, s.timeMs, land?.timeMs, ground, now,
+            recoveries[s.serial]?.recovered == true)
+        val text = when {
+            l == null -> "—"
+            l.landed -> "~" + fmtClock(l.timeMs)
+            l.timeMs - now < 60_000 -> getString(R.string.lt_1min)
+            else -> getString(R.string.approx_min, ((l.timeMs - now) / 60_000.0).roundToInt())
+        }
+        val label = getString(if (l?.landed == true) R.string.landed_label else R.string.landing_in)
+        txt(R.id.vEta, text); txt(R.id.cEta, text); txt(R.id.vEtaLabel, label); txt(R.id.cEtaLabel, label)
+    }
+
+    private fun fmtClock(ms: Long): String {
+        val today = android.text.format.DateUtils.isToday(ms)
+        return android.text.format.DateFormat.format(if (today) "HH:mm" else "dd/MM HH:mm", ms).toString()
+    }
+
+    // ---------------------------------------------------------------- landing place (address)
+
+    private val geoIo = Executors.newSingleThreadExecutor()
+    private var geoBusy = false
+    private val places = LinkedHashMap<String, String>() // "lat,lon" (4 decimals ≈ 10 m) → address or ""
+
+    private fun placeKey(lat: Double, lon: Double) = String.format(Locale.US, "%.4f,%.4f", lat, lon)
+
+    /** Address of the point if known; otherwise asks for it (one lookup at a time) and returns null. */
+    private fun place(lat: Double, lon: Double): String? {
+        val k = placeKey(lat, lon)
+        places[k]?.let { return it.ifBlank { null } }
+        if (!geoBusy) {
+            geoBusy = true
+            geoIo.execute {
+                val a = Places.lookup(applicationContext, lat, lon)
+                ui.post {
+                    geoBusy = false
+                    if (places.size > 50) places.remove(places.keys.first())
+                    places[k] = a ?: ""
+                    renderPlaces()
+                }
+            }
         }
         return null
     }
 
-    private fun etaText(s: Sonde?): String {
-        if (s == null) return "—"
-        if (s.velV.isNaN() || s.velV >= -0.5) return "—"
-        // a sonde that stopped transmitting long ago has already landed: no countdown
-        if (System.currentTimeMillis() - s.timeMs > 10 * 60_000L) return "—"
-        val t = etaSeconds(s) ?: return "—"
-        return if (t < 60) getString(R.string.lt_1min) else getString(R.string.approx_min, (t / 60.0).roundToInt())
+    /** Map card: landing place (prediction) or last position; compass: the current target. */
+    private fun renderPlaces() {
+        val s = sonde
+        val land = pred?.landing
+        if (s == null) { txt(R.id.vPlace, "—"); txt(R.id.cPlace, ""); return }
+        val (mlat, mlon) = if (land != null) Pair(land.lat, land.lon) else Pair(s.lat, s.lon)
+        txt(R.id.vPlaceLabel, getString(if (land != null) R.string.landing_place else R.string.last_place))
+        txt(R.id.vPlace, place(mlat, mlon) ?: "…")
+        val (clat, clon) = if (targetLanding && land != null) Pair(land.lat, land.lon) else Pair(s.lat, s.lon)
+        txt(R.id.cPlace, place(clat, clon) ?: "")
     }
 
     private fun setDot(id: Int, color: Int) {
@@ -722,7 +767,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             else -> { live.text = getString(R.string.live); setDot(R.id.liveDot, GREEN) }
         }
         if (s == null || s.timeMs == 0L) {
-            txt(R.id.age, "—"); txt(R.id.cAge, "—"); return
+            txt(R.id.age, "—"); txt(R.id.cAge, "—"); renderLanding(null); return
         }
         val sec = ((System.currentTimeMillis() - s.timeMs) / 1000).coerceAtLeast(0)
         val c = ageColor(sec)
@@ -730,7 +775,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             findViewById<TextView>(id).apply { text = ageText(sec); setTextColor(c) }
         }
         setDot(R.id.freshDot, c); setDot(R.id.cFreshDot, c)
-        txt(R.id.vEta, etaText(s)); txt(R.id.cEta, etaText(s))
+        renderLanding(s)
     }
 
     private fun render() {
@@ -749,7 +794,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             txt(R.id.cType, findViewById<TextView>(R.id.stype).text)
             txt(R.id.badge, "—")
             for (id in listOf(R.id.vAlt, R.id.vVv, R.id.vVh, R.id.vHead, R.id.vFreq, R.id.vEta, R.id.coords,
-                R.id.cAlt, R.id.cElev, R.id.cEta, R.id.chipDist, R.id.cDist, R.id.vTemp, R.id.vPress, R.id.cTemp, R.id.cPress)) txt(id, "—")
+                R.id.cAlt, R.id.cElev, R.id.cEta, R.id.chipDist, R.id.cDist, R.id.vTemp, R.id.vPress, R.id.vPlace)) txt(id, "—")
+            txt(R.id.cPlace, ""); compass.phase = Phase.NONE
             txt(R.id.via, ""); txt(R.id.cVv, "")
             findViewById<View>(R.id.warn).visibility = View.GONE
             findViewById<View>(R.id.cWarn).visibility = View.GONE
@@ -794,7 +840,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                 if (s.heading.isNaN()) "" else getString(R.string.along_heading, s.heading, cardinal(s.heading))))
         }
         for (id in listOf(R.id.warn, R.id.cWarn)) findViewById<TextView>(id).apply {
-            text = warns.joinToString("\n"); visibility = if (warns.isEmpty()) View.GONE else View.VISIBLE
+            text = warns.joinToString("\n")
+            visibility = if (warns.isEmpty() || (id == R.id.warn && sheetCollapsed)) View.GONE else View.VISIBLE
         }
         txt(R.id.vAlt, fmtAlt(s.alt))
         txt(R.id.vVv, if (s.velV.isNaN()) "—" else String.format(BR, "%+.1f m/s", s.velV).replace("-", "−"))
@@ -804,8 +851,10 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         txt(R.id.vFreq, if (s.freq.isNaN()) "—" else String.format(BR, "%.3f", s.freq))
         txt(R.id.coords, String.format(Locale.US, "%.5f, %.5f", s.lat, s.lon))
         txt(R.id.cAlt, fmtAlt(s.alt))
-        txt(R.id.vTemp, fmtTemp(s.temp)); txt(R.id.cTemp, fmtTemp(s.temp))
-        txt(R.id.vPress, fmtPress(s.pressure)); txt(R.id.cPress, fmtPress(s.pressure))
+        txt(R.id.vTemp, fmtTemp(s.temp)); txt(R.id.vPress, fmtPress(s.pressure))
+        compass.phase = if (recoveries[s.serial]?.recovered == true) Phase.NONE
+            else FlightLogic.phase(s.velV, System.currentTimeMillis() - s.timeMs)
+        renderPlaces()
         txt(R.id.cVv, if (s.velV.isNaN()) "" else String.format(BR, "%s %.1f m/s", if (s.velV < 0) "↓" else "↑", abs(s.velV)))
 
         val u = me
@@ -932,8 +981,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
         }
-        val names = mapOf("dark" to R.string.style_dark, "fiord" to R.string.style_fiord,
-            "positron" to R.string.style_positron, "liberty" to R.string.style_liberty, SondeMap.SATELLITE to R.string.style_satellite)
+        val names = mapStyleNames
         val row = LinearLayout(this)
         fun fill() {
             row.removeAllViews()
@@ -990,11 +1038,32 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<TextView>(R.id.appTitle).text = t
     }
 
-    /** Settings: units (altitude m/ft, temperature °C/°F) and the landing alarm. */
+    private val mapStyleNames = linkedMapOf("dark" to R.string.style_dark, "fiord" to R.string.style_fiord,
+        "positron" to R.string.style_positron, "liberty" to R.string.style_liberty, SondeMap.SATELLITE to R.string.style_satellite)
+
+    private var sheetCollapsed = false
+
+    /** Map card: collapsed keeps only the handle and the serial/age row, so more map is visible. */
+    private fun setSheetCollapsed(on: Boolean) {
+        sheetCollapsed = on
+        val sheet = findViewById<LinearLayout>(R.id.sheet)
+        for (i in 2 until sheet.childCount) {
+            val v = sheet.getChildAt(i)
+            // the warning line keeps its own visibility rule when expanded
+            if (on) v.visibility = View.GONE
+            else if (v.id != R.id.warn) v.visibility = View.VISIBLE
+        }
+        if (!on) render()
+        txt(R.id.sheetChevron, if (on) "▴" else "▾")
+        getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("sheetCollapsed", on).apply()
+    }
+
+    /** Settings: units (altitude m/ft, temperature °C/°F), map type and the landing alarm. */
     private fun showSettings() {
         val d = resources.displayMetrics.density
         var feet = altFeet
         var fahr = tempF
+        var style = mapStyle
         var alarm = alarmKm
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -1007,9 +1076,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         }
         val altRow = LinearLayout(this)
         val tRow = LinearLayout(this)
+        val mRow = LinearLayout(this)
         val aRow = LinearLayout(this)
         fun fill() {
-            altRow.removeAllViews(); tRow.removeAllViews(); aRow.removeAllViews()
+            altRow.removeAllViews(); tRow.removeAllViews(); aRow.removeAllViews(); mRow.removeAllViews()
+            for ((k, r) in mapStyleNames) mRow.addView(chip(getString(r), k == style) { style = k; fill() })
             altRow.addView(chip(getString(R.string.unit_m), !feet) { feet = false; fill() })
             altRow.addView(chip(getString(R.string.unit_ft), feet) { feet = true; fill() })
             tRow.addView(chip("°C", !fahr) { fahr = false; fill() })
@@ -1021,6 +1092,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         box.addView(altRow)
         box.addView(label(getString(R.string.units_temp_label)))
         box.addView(tRow)
+        box.addView(label(getString(R.string.map_type_label)))
+        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(mRow) })
         box.addView(label(getString(R.string.alarm_label)))
         box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(aRow) })
         box.addView(TextView(this).apply {
@@ -1033,6 +1106,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.apply) { _, _ ->
                 altFeet = feet; tempF = fahr
+                if (style != mapStyle) { map.setStyleName(style); saveMapSettings(style) }
                 if (alarm != alarmKm) { alarmKm = alarm; alarmed.clear(); lastAlarmAt = 0 }
                 getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("altFeet", feet)
                     .putBoolean("tempF", fahr).putInt("alarmKm", alarm).apply()

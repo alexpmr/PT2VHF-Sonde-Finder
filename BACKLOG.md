@@ -4,26 +4,16 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Campo "Pouso previsto" não funciona** (27/11/2026): relato do mantenedor; o campo de pouso (mapa e bússola)
-  não mostra o valor esperado. Comportamento pedido: se a sonda está **caindo**, mostrar em quanto tempo vai
-  pousar (ex.: "em 12 min"); se **já caiu**, mostrar o horário estimado em que pousou (ex.: "pousou ~14:32").
-  Investigar a previsão (`/predictions`) e o cálculo de `etaText` (hoje mostra "—" quando a sonda está sem sinal
-  há mais de 10 min).
-- **Tipo de mapa nas Configurações** (27/11/2026): escolher o tipo de mapa (escuro, claro, colorido, satélite…)
-  também na tela de Configurações. Hoje o satélite já existe na 1.11.0, mas só no botão de estilo do mapa.
-- **Encolher o card de informações no mapa** (27/11/2026): na página do mapa, opção de recolher o card com os
-  dados da sonda para ver melhor o mapa (e expandir de novo).
-- **Bússola mais limpa** (27/11/2026): no modo bússola, tirar o card de temperatura e pressão e as informações
-  de rumo em texto (linha "rumo … vire X°"). Mostrar o ícone da sonda conforme a fase: balão subindo, paraquedas
-  descendo.
-- **Bússola maior** (27/11/2026): no modo bússola, reduzir um pouco o tamanho do número da distância e usar o
-  espaço que sobrar para aumentar a bússola.
-- **Local do pouso por endereço** (27/11/2026): no campo do local de pouso, mostrar o endereço (rua), o bairro e
-  a cidade do ponto previsto ou da última posição. Opção sem custo: o `Geocoder` do próprio Android (com
-  internet); alternativa: Nominatim/OpenStreetMap (limite de 1 consulta/s). Consultar só quando o ponto mudar.
+Nenhum item pendente.
 
 ## Resolvido
 
+- **v1.12.0** — Campo de pouso: não funcionava porque mostrava "—" quando a sonda não estava caindo ou estava sem
+  sinal há mais de 10 min; agora mostra quanto falta enquanto cai e o horário estimado do pouso quando já caiu
+  (previsão, senão altitude / velocidade de descida a partir do último pacote). Local do pouso com rua, bairro e
+  cidade (Geocoder do Android, Nominatim como reserva; consulta só quando o ponto muda). Tipo de mapa (inclusive
+  satélite) nas Configurações. Card do mapa recolhível pela alça. Bússola: sem o card de temperatura/pressão e
+  sem a linha de rumo em texto, distância menor e bússola maior, balão/paraquedas no centro, endereço do alvo.
 - **v1.11.0** — Tela de Configurações (⚙): altitude em metros ou pés (vale para todas as altitudes; distâncias e
   velocidades continuam métricas), temperatura em °C ou °F, e o alarme de pouso a X km (saiu do Filtro).
   Campos de temperatura (`temp`) e pressão (`pressure`, hPa) do último pacote no mapa e na bússola ("—" quando a

@@ -21,3 +21,10 @@ class UnitsTest {
         assertTrue(Units.temp(Double.NaN, true).isNaN())
     }
 }
+
+class PlacesJoinTest {
+    @Test fun fullAddress() = assertEquals("Rua A, 12 · Centro · Brasília", Places.join("Rua A", "12", "Centro", "Brasília"))
+    @Test fun missingParts() = assertEquals("Asa Sul · Brasília", Places.join(null, " ", "Asa Sul", "Brasília"))
+    @Test fun nothing() = org.junit.Assert.assertNull(Places.join(null, null, "", null))
+    @Test fun sameDistrictAndCity() = assertEquals("Planaltina", Places.join(null, null, "Planaltina", "Planaltina"))
+}

@@ -44,4 +44,35 @@ object FlightLogic {
             val d = distanceM(userLat, userLon, land.lat, land.lon)
             if (d <= maxM) AlarmHit(serial, land, d) else null
         }.sortedBy { it.distM }
+
+    /** Landing field: [landed] false → expected landing at [timeMs] (future); true → estimated time it landed. */
+    data class Landing(val landed: Boolean, val timeMs: Long)
+
+    /**
+     * Landing time for the "Landing" field.
+     * - Still descending (heard in the last 10 min, falling): when it will land — the prediction's time,
+     *   else altitude above ground / descent rate from the last packet.
+     * - Down (recovered, or not heard for 10 min): estimated time it landed — the prediction's landing
+     *   time if it is not before the last packet, else the last packet plus the fall time left, else the
+     *   last packet itself. Never in the future.
+     * - Ascending, or no data: null.
+     */
+    fun landing(alt: Double, velV: Double, lastMs: Long, predLandMs: Long?, groundAlt: Double,
+                nowMs: Long, recovered: Boolean): Landing? {
+        if (lastMs <= 0L) return null
+        val falling = !velV.isNaN() && velV < -0.5
+        val fallLeftMs = if (falling && !alt.isNaN()) (((alt - groundAlt).coerceAtLeast(0.0) / -velV) * 1000).toLong() else 0L
+        val pred = predLandMs?.takeIf { it > 0L }
+        if (recovered || nowMs - lastMs > LIVE_MS) {
+            val t = when {
+                pred != null && pred >= lastMs - 60_000L -> pred
+                falling -> lastMs + fallLeftMs
+                else -> lastMs
+            }
+            return Landing(true, minOf(t, nowMs))
+        }
+        if (!falling) return null
+        val t = if (pred != null && pred > nowMs) pred else lastMs + fallLeftMs
+        return Landing(false, maxOf(t, nowMs))
+    }
 }

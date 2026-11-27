@@ -14,7 +14,7 @@ jobs:
     env:
       # Certificate of the permanent key (same as v1.9.0 on the site and Google Play upload key).
       # A signed build with any other key is refused, so a wrong keystore can never be published.
-      EXPECTED_CERT_SHA256: dfd3ebee6665a86319822b0b98f9913327fd883a7e5e09d3f8f62e6af509873b
+      EXPECTED_CERT_SHA256: db5e19d5f99ef93aa3e1b7ce47bc4def24f5664582775380abe6376202e9121d
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}

@@ -56,8 +56,7 @@ secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALI
 no repositório; sem eles o workflow gera um APK com chave de debug (sufixo `-DEBUG-KEY`), que não deve ser publicado.
 
 O workflow **Build APK** do GitHub Actions roda os testes e gera o APK e o AAB a cada push em `main` (aba Actions →
-artefato). Com os secrets, confere que o certificado é o da chave permanente (SHA-256 `dfd3ebee…873b`, o mesmo da
-v1.9.0) e cria a GitHub Release `vX.Y.Z` com o APK e o AAB. O workflow `sync-sonde-release.yml` do repositório do
+artefato). Com os secrets, confere que o certificado é o da chave permanente (SHA-256 `db5e19d5…121d`, chave criada em 27/11/2026; a chave da v1.9.0 foi substituída porque a senha se perdeu) e cria a GitHub Release `vX.Y.Z` com o APK e o AAB. O workflow `sync-sonde-release.yml` do repositório do
 site pega essa release (a cada hora ou sob demanda), confere hash e assinatura e publica o APK em
 `downloads/sonde-finder/`, o `updates.json` (OTA) e o link do APK dos e-mails. O AAB vai para a Play Console.
 

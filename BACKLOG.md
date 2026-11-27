@@ -15,6 +15,8 @@ Nenhum item pendente.
   `update.php` (release assinada → `sync-sonde-release.yml` → aviso no app, download conferido por SHA-256 e
   certificado) e, na versão `play`, Google Play In-App Updates (flexível). Mapa de satélite de fundo
   (estilo "Satélite": Esri World Imagery + camada de fronteiras e nomes de lugares, com atribuição), pedido em 27/11/2026.
+  Nova chave de assinatura (27/11/2026, SHA-256 `db5e19d5…121d`): a senha da chave da v1.9.0 se perdeu; quem tem o
+  APK 1.9.0 do site precisa desinstalar uma vez antes de instalar a 1.11.0 (no Play, pedir a troca da chave de envio).
 
 - **v1.10.0** — Ícone conforme a fase do voo: balão subindo, paraquedas descendo (ponto quando parada ou sem sinal
   há mais de 10 min). Alarme de pouso configurável (Filtro › 2–50 km): som, vibração e aviso quando o pouso

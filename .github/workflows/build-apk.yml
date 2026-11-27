@@ -45,11 +45,14 @@ jobs:
       - name: Check the signing certificate
         if: env.PT2VHF_SIGNING_STORE_FILE != ''
         run: |
+          ls -l out/
           APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-          got=$("$APKSIGNER" verify --print-certs "out/PT2VHF-Sonde-Finder-v$VERSION.apk" | grep -oP 'Signer #1 certificate SHA-256 digest: \K[0-9a-f]+')
+          "$APKSIGNER" verify --print-certs "out/PT2VHF-Sonde-Finder-v$VERSION.apk" > "$RUNNER_TEMP/certs.txt" 2>&1 || true
+          grep -i "signer\|error\|warning" "$RUNNER_TEMP/certs.txt" | head -20
+          got=$(grep -oP 'Signer #1 certificate SHA-256 digest: \K[0-9a-f]+' "$RUNNER_TEMP/certs.txt" || true)
           echo "APK certificate: $got"
           test "$got" = "$EXPECTED_CERT_SHA256" || { echo "::error::APK signed with an unexpected key"; exit 1; }
-          got=$(keytool -printcert -jarfile "out/PT2VHF-Sonde-Finder-v$VERSION-play.aab" | grep -oP 'SHA256: \K[0-9A-F:]+' | head -1 | tr -d ':' | tr 'A-F' 'a-f')
+          got=$(keytool -printcert -jarfile "out/PT2VHF-Sonde-Finder-v$VERSION-play.aab" | grep -oP 'SHA256: \K[0-9A-F:]+' | head -1 | tr -d ':' | tr 'A-F' 'a-f' || true)
           echo "AAB certificate: $got"
           test "$got" = "$EXPECTED_CERT_SHA256" || { echo "::error::AAB signed with an unexpected key"; exit 1; }
       - uses: actions/upload-artifact@v4

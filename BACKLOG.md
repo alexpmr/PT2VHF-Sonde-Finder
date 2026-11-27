@@ -4,7 +4,8 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-Nenhum item pendente.
+- **Campo "Pouso em X min" não funciona** (27/11/2026): relato do mantenedor; o campo de tempo até o pouso
+  (mapa e bússola) não mostra o valor esperado. Investigar a previsão (`/predictions`) e o cálculo de `etaText`.
 
 ## Resolvido
 

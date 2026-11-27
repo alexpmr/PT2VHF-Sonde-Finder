@@ -18,6 +18,9 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
   descendo.
 - **Bússola maior** (27/11/2026): no modo bússola, reduzir um pouco o tamanho do número da distância e usar o
   espaço que sobrar para aumentar a bússola.
+- **Local do pouso por endereço** (27/11/2026): no campo do local de pouso, mostrar o endereço (rua), o bairro e
+  a cidade do ponto previsto ou da última posição. Opção sem custo: o `Geocoder` do próprio Android (com
+  internet); alternativa: Nominatim/OpenStreetMap (limite de 1 consulta/s). Consultar só quando o ponto mudar.
 
 ## Resolvido
 

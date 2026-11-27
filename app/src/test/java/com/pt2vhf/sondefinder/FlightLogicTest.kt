@@ -20,9 +20,9 @@ class FlightLogicTest {
     }
 
     @Test fun distanceMatchesKnownValue() {
-        // Brasília (Esplanada) → Goiânia ≈ 173 km
-        val d = FlightLogic.distanceM(-15.7998, -47.8645, -16.6869, -49.2648)
-        assertEquals(173_000.0, d, 3_000.0)
+        // 1° of latitude on a 6371 km sphere = 111.195 km; 1° of longitude at 60° is half of that
+        assertEquals(111_195.0, FlightLogic.distanceM(-15.0, -47.0, -16.0, -47.0), 5.0)
+        assertEquals(55_597.0, FlightLogic.distanceM(60.0, 10.0, 60.0, 11.0), 150.0)
         assertEquals(0.0, FlightLogic.distanceM(-15.0, -47.0, -15.0, -47.0), 1e-6)
     }
 

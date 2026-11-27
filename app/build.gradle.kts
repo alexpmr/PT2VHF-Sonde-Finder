@@ -12,7 +12,8 @@ android {
         versionCode = 19
         versionName = "1.12.0"
         // Real phones only (ARM); x86 builds exist only for emulators and double the APK size.
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+        // -Pemulator (screenshot workflow only) keeps the x86_64 libraries for the CI emulator.
+        if (!project.hasProperty("emulator")) ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
     signingConfigs {
         if (!releaseKeyStore.isNullOrBlank()) {

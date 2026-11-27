@@ -9,7 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # GitHub Release of signed builds on main
     env:
+      # Certificate of the permanent key (same as v1.9.0 on the site and Google Play upload key).
+      # A signed build with any other key is refused, so a wrong keystore can never be published.
+      EXPECTED_CERT_SHA256: dfd3ebee6665a86319822b0b98f9913327fd883a7e5e09d3f8f62e6af509873b
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -36,7 +41,28 @@ jobs:
           cp app/build/outputs/apk/github/release/app-github-release.apk "out/PT2VHF-Sonde-Finder-v$V$S.apk"
           cp app/build/outputs/bundle/playRelease/app-play-release.aab "out/PT2VHF-Sonde-Finder-v$V$S-play.aab"
           sha256sum out/*
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+      - name: Check the signing certificate
+        if: env.PT2VHF_SIGNING_STORE_FILE != ''
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          got=$("$APKSIGNER" verify --print-certs "out/PT2VHF-Sonde-Finder-v$VERSION.apk" | grep -oP 'Signer #1 certificate SHA-256 digest: \K[0-9a-f]+')
+          echo "APK certificate: $got"
+          test "$got" = "$EXPECTED_CERT_SHA256" || { echo "::error::APK signed with an unexpected key"; exit 1; }
+          got=$(keytool -printcert -jarfile "out/PT2VHF-Sonde-Finder-v$VERSION-play.aab" | grep -oP 'SHA256: \K[0-9A-F:]+' | head -1 | tr -d ':' | tr 'A-F' 'a-f')
+          echo "AAB certificate: $got"
+          test "$got" = "$EXPECTED_CERT_SHA256" || { echo "::error::AAB signed with an unexpected key"; exit 1; }
       - uses: actions/upload-artifact@v4
         with:
           name: PT2VHF-Sonde-Finder
           path: out/*
+      # Signed build on main: publish it as GitHub Release vX.Y.Z (origin for the website sync).
+      # Debug-key builds and existing tags are never released.
+      - name: GitHub Release
+        if: github.ref == 'refs/heads/main' && env.PT2VHF_SIGNING_STORE_FILE != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then echo "v$VERSION already released"; exit 0; fi
+          gh release create "v$VERSION" "out/PT2VHF-Sonde-Finder-v$VERSION.apk" "out/PT2VHF-Sonde-Finder-v$VERSION-play.aab" \
+            --target "$GITHUB_SHA" --title "PT2VHF Sonde Finder $VERSION" --notes-file docs/release-notes.md

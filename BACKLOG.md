@@ -8,6 +8,7 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
   paraquedas.
 - **Alarme de pouso próximo** — alarme configurável que avisa quando houver previsão de uma sonda cair a
   até X km de onde o usuário está (X definido pelo usuário).
+- **Conexão mais persistente** — verificar a conexão a cada 5 segundos.
 
 ## Resolvido
 

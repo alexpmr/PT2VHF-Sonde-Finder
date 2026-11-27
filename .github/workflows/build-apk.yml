@@ -26,8 +26,8 @@ jobs:
         run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "PT2VHF_SIGNING_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-      - name: Build site APK (github) and Google Play AAB (play)
-        run: ./gradlew --no-daemon assembleGithubRelease bundlePlayRelease
+      - name: Unit tests, site APK (github) and Google Play AAB (play)
+        run: ./gradlew --no-daemon testGithubReleaseUnitTest assembleGithubRelease bundlePlayRelease
       - name: Name the outputs
         run: |
           V=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)

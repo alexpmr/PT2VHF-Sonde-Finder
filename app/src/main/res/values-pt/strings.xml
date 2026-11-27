@@ -159,4 +159,12 @@
     <string name="exit_msg">A busca e o detector de proximidade vão parar.</string>
     <string name="exit_yes">Fechar</string>
     <string name="usage_label">Contar este celular nas estatísticas anônimas de uso (código aleatório, sem localização)</string>
+    <string name="stale_data">Atualizado %1$s</string>
+    <string name="alarm_label">ALARME DE POUSO</string>
+    <string name="alarm_off">Desligado</string>
+    <string name="alarm_hint">Toca e vibra quando o pouso previsto de uma sonda no ar ficar a até esta distância de você. Funciona com o app aberto.</string>
+    <string name="alarm_title">Alarme de pouso</string>
+    <string name="alarm_line">%1$s: pouso previsto a %2$s de você%3$s</string>
+    <string name="alarm_eta">(~%1$d min)</string>
+    <string name="alarm_view">Ver</string>
 </resources>

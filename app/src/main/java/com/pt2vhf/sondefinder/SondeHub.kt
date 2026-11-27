@@ -34,10 +34,12 @@ object SondeHub {
     private const val BASE = "https://api.v2.sondehub.org"
     private const val UA = "PT2VHF-SondeFinder/1.0 (Android)"
 
-    private fun get(path: String): String {
+    // readMs: live requests must fail fast (a stuck request holds back the next update);
+    // history summaries are slow on the server and keep the long timeout.
+    private fun get(path: String, readMs: Int = 60000): String {
         val c = URL(BASE + path).openConnection() as HttpURLConnection
         c.connectTimeout = 10000
-        c.readTimeout = 60000
+        c.readTimeout = readMs
         c.setRequestProperty("User-Agent", UA)
         c.setRequestProperty("Accept", "application/json")
         try {
@@ -90,7 +92,7 @@ object SondeHub {
 
     /** Latest telemetry of every sonde heard within [radiusM] of the point in the last [lastSec]. */
     fun nearby(lat: Double, lon: Double, radiusM: Int, lastSec: Int): List<Sonde> {
-        val body = get("/sondes?lat=$lat&lon=$lon&distance=$radiusM&last=$lastSec")
+        val body = get("/sondes?lat=$lat&lon=$lon&distance=$radiusM&last=$lastSec", 15000)
         val root = JSONObject(body)
         val out = ArrayList<Sonde>()
         for (k in root.keys()) {
@@ -103,7 +105,7 @@ object SondeHub {
     /** Flight track (positions) of one sonde over the last [duration] (e.g. "3h"). */
     fun track(serial: String, duration: String = "6h"): List<Point> {
         val s = URLEncoder.encode(serial, "UTF-8")
-        val root = JSONObject(get("/sondes/telemetry?duration=$duration&serial=$s"))
+        val root = JSONObject(get("/sondes/telemetry?duration=$duration&serial=$s", 30000))
         val frames = root.optJSONObject(serial) ?: return emptyList()
         val out = ArrayList<Point>()
         for (k in frames.keys()) {
@@ -118,12 +120,18 @@ object SondeHub {
     }
 
     /** Landing prediction calculated by SondeHub for this sonde, if any. */
-    fun prediction(serial: String): Prediction? {
-        val s = URLEncoder.encode(serial, "UTF-8")
-        val arr = JSONArray(get("/predictions?vehicles=$s"))
+    fun prediction(serial: String): Prediction? = predictions(listOf(serial))[serial]
+
+    /** Landing predictions for several sondes in one request (serial → prediction). */
+    fun predictions(serials: Collection<String>): Map<String, Prediction> {
+        if (serials.isEmpty()) return emptyMap()
+        val s = URLEncoder.encode(serials.joinToString(","), "UTF-8")
+        val arr = JSONArray(get("/predictions?vehicles=$s", 20000))
+        val out = HashMap<String, Prediction>()
         for (i in 0 until arr.length()) {
             val p = arr.optJSONObject(i) ?: continue
-            if (p.optString("vehicle") != serial) continue
+            val serial = p.optString("vehicle")
+            if (serial !in serials) continue
             val raw = p.opt("data")
             val data = when (raw) {
                 is JSONArray -> raw
@@ -138,9 +146,9 @@ object SondeHub {
                 if (la.isNaN() || lo.isNaN()) continue
                 pts.add(Point(la, lo, q.d("alt"), (q.optDouble("time", 0.0) * 1000).toLong()))
             }
-            if (pts.isNotEmpty()) return Prediction(pts)
+            if (pts.isNotEmpty()) out[serial] = Prediction(pts)
         }
-        return null
+        return out
     }
 
     /** A past flight from /sondes/summary: last received frame, predicted landing and key frames. */
@@ -204,7 +212,7 @@ object SondeHub {
 
     /** Recovery reports (found / not found) within the area over the last [lastSec] (0 = all time). */
     fun recovered(lat: Double, lon: Double, radiusM: Int, lastSec: Int): Map<String, Recovery> {
-        val body = get("/recovered?lat=$lat&lon=$lon&distance=$radiusM&last=$lastSec").trim()
+        val body = get("/recovered?lat=$lat&lon=$lon&distance=$radiusM&last=$lastSec", 20000).trim()
         val arr: JSONArray = if (body.startsWith("[")) JSONArray(body) else {
             val o = JSONObject(body); val a = JSONArray(); for (k in o.keys()) o.optJSONObject(k)?.let { a.put(it) }; a
         }

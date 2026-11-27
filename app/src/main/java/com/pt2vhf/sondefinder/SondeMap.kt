@@ -48,7 +48,7 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
                private var styleName: String, private var brightness: Int) {
 
     enum class Kind { LIVE, OLD, RECOVERED }
-    data class Other(val serial: String, val lat: Double, val lon: Double, val kind: Kind)
+    data class Other(val serial: String, val lat: Double, val lon: Double, val kind: Kind, val phase: Phase = Phase.NONE)
 
     var onOtherClick: ((String) -> Unit)? = null
     var onSelectedClick: (() -> Unit)? = null
@@ -64,6 +64,7 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
     private var others: List<Other> = emptyList()
     private var user: LatLng? = null
     private var selected: LatLng? = null
+    private var selectedPhase = Phase.NONE
     private var track: List<LatLng> = emptyList()
     private var landing: LatLng? = null
     private var userLine = false
@@ -115,8 +116,10 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
     // ------------------------------------------------------------------ public state
     fun setOthers(list: List<Other>) { others = list; apply() }
     fun setUser(lat: Double, lon: Double) { user = LatLng(lat, lon); apply() }
-    fun setSelected(lat: Double?, lon: Double?, trackPts: List<LatLng>, land: LatLng?, lineToUser: Boolean) {
+    fun setSelected(lat: Double?, lon: Double?, trackPts: List<LatLng>, land: LatLng?, lineToUser: Boolean,
+                    phase: Phase = Phase.NONE) {
         selected = if (lat != null && lon != null) LatLng(lat, lon) else null
+        selectedPhase = phase
         track = trackPts; landing = land; userLine = lineToUser
         apply()
     }
@@ -192,6 +195,9 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
         st.addImage("old", dot(Color.parseColor("#8C99A5"), 22, 2f))
         st.addImage("rec", dot(Color.parseColor("#2E8F5A"), 20, 2f))
         st.addImage("sel", dot(Color.parseColor(ACCENT), 40, 3f))
+        // flying sondes: balloon while going up, parachute while coming down
+        st.addImage("up", balloon(30)); st.addImage("down", parachute(30))
+        st.addImage("sel-up", balloon(46)); st.addImage("sel-down", parachute(46))
         st.addImage("user", dot(Color.parseColor(BLUE), 40, 3f, Color.WHITE))
         st.addImage("land", cross())
         st.addImage("cone70", cone(70f))
@@ -205,7 +211,7 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
             lineColor(BLUE), lineOpacity(0.8f), lineWidth(2f), lineDasharray(arrayOf(4f, 3f))))
         st.addLayer(symbols("others-l", "others", iconImage(Expression.get("icon"))))
         st.addLayer(symbols("land-l", "land", iconImage("land")))
-        st.addLayer(symbols("sel-l", "sel", iconImage("sel")))
+        st.addLayer(symbols("sel-l", "sel", iconImage(Expression.get("icon"))))
         st.addLayer(symbols("cone-l", "cone", iconImage(Expression.get("img")),
             iconRotate(Expression.get("rot")), iconRotationAlignment(Property.ICON_ROTATION_ALIGNMENT_MAP)))
         st.addLayer(symbols("user-l", "user", iconImage("user")))
@@ -236,11 +242,17 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
         st.getSourceAs<GeoJsonSource>("others")?.setGeoJson(FeatureCollection.fromFeatures(others.map {
             Feature.fromGeometry(Point.fromLngLat(it.lon, it.lat)).apply {
                 addStringProperty("serial", it.serial)
-                addStringProperty("icon", when (it.kind) { Kind.LIVE -> "live"; Kind.OLD -> "old"; Kind.RECOVERED -> "rec" })
+                addStringProperty("icon", when (it.kind) {
+                    Kind.LIVE -> when (it.phase) { Phase.UP -> "up"; Phase.DOWN -> "down"; Phase.NONE -> "live" }
+                    Kind.OLD -> "old"; Kind.RECOVERED -> "rec"
+                })
             }
         }))
         st.getSourceAs<GeoJsonSource>("user")?.setGeoJson(single(user))
-        st.getSourceAs<GeoJsonSource>("sel")?.setGeoJson(single(sel))
+        st.getSourceAs<GeoJsonSource>("sel")?.setGeoJson(FeatureCollection.fromFeatures(if (sel == null) emptyList() else listOf(
+            Feature.fromGeometry(pt(sel)).apply {
+                addStringProperty("icon", when (selectedPhase) { Phase.UP -> "sel-up"; Phase.DOWN -> "sel-down"; Phase.NONE -> "sel" })
+            })))
         st.getSourceAs<GeoJsonSource>("land")?.setGeoJson(single(if (sel != null) landing else null))
         st.getSourceAs<GeoJsonSource>("track")?.setGeoJson(line(if (sel != null && track.isNotEmpty()) track + sel else emptyList()))
         st.getSourceAs<GeoJsonSource>("pred")?.setGeoJson(line(if (sel != null && landing != null) listOf(sel, landing!!) else emptyList()))
@@ -270,6 +282,51 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
         c.drawCircle(s / 2f, s / 2f, s / 2f, p)
         p.color = ring; c.drawCircle(s / 2f, s / 2f, s * 0.3f + ringDp * d, p)
         p.color = fill; c.drawCircle(s / 2f, s / 2f, s * 0.3f, p)
+        return b
+    }
+
+    private fun canvas(sizeDp: Int): Pair<Bitmap, Canvas> {
+        val s = (sizeDp * d).roundToInt()
+        val b = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888)
+        val c = Canvas(b)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        val fill = Color.parseColor(ACCENT)
+        p.color = Color.argb(46, Color.red(fill), Color.green(fill), Color.blue(fill))
+        c.drawCircle(s / 2f, s / 2f, s / 2f, p) // soft halo, as on the plain dots
+        return Pair(b, c)
+    }
+
+    private fun outline(w: Float) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#0E1419"); style = Paint.Style.STROKE; strokeWidth = w; strokeJoin = Paint.Join.ROUND
+    }
+
+    /** Weather balloon: round envelope, cord and payload box. */
+    private fun balloon(sizeDp: Int): Bitmap {
+        val (b, c) = canvas(sizeDp)
+        val s = b.width.toFloat()
+        val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor(ACCENT) }
+        val line = outline(1.5f * d)
+        val env = RectF(s * 0.27f, s * 0.10f, s * 0.73f, s * 0.58f)
+        c.drawOval(env, fill); c.drawOval(env, line)
+        c.drawLine(s / 2f, s * 0.58f, s / 2f, s * 0.74f, line)
+        val box = RectF(s * 0.42f, s * 0.74f, s * 0.58f, s * 0.88f)
+        c.drawRect(box, fill); c.drawRect(box, line)
+        return b
+    }
+
+    /** Parachute: canopy, suspension lines and payload box. */
+    private fun parachute(sizeDp: Int): Bitmap {
+        val (b, c) = canvas(sizeDp)
+        val s = b.width.toFloat()
+        val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor(ACCENT) }
+        val line = outline(1.5f * d)
+        val canopy = RectF(s * 0.16f, s * 0.14f, s * 0.84f, s * 0.62f)
+        c.drawArc(canopy, 180f, 180f, true, fill); c.drawArc(canopy, 180f, 180f, true, line)
+        val box = RectF(s * 0.42f, s * 0.72f, s * 0.58f, s * 0.86f)
+        c.drawLine(s * 0.16f, s * 0.38f, box.left, box.top, line)
+        c.drawLine(s / 2f, s * 0.38f, s / 2f, box.top, line)
+        c.drawLine(s * 0.84f, s * 0.38f, box.right, box.top, line)
+        c.drawRect(box, fill); c.drawRect(box, line)
         return b
     }
 

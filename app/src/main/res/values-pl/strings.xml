@@ -160,4 +160,12 @@
     <string name="exit_msg">Wyszukiwanie i detektor zbliżenia zostaną zatrzymane.</string>
     <string name="exit_yes">Zamknij</string>
     <string name="usage_label">Uwzględniaj ten telefon w anonimowych statystykach użycia (losowy kod, bez lokalizacji)</string>
+    <string name="stale_data">Zaktualizowano %1$s</string>
+    <string name="alarm_label">ALARM LĄDOWANIA</string>
+    <string name="alarm_off">Wył.</string>
+    <string name="alarm_hint">Dźwięk i wibracja, gdy przewidywane lądowanie lecącej sondy jest w tej odległości od ciebie lub bliżej. Działa przy otwartej aplikacji.</string>
+    <string name="alarm_title">Alarm lądowania</string>
+    <string name="alarm_line">%1$s: przewidywane lądowanie %2$s od ciebie%3$s</string>
+    <string name="alarm_eta">(~%1$d min)</string>
+    <string name="alarm_view">Pokaż</string>
 </resources>

@@ -158,4 +158,12 @@
     <string name="exit_msg">Die Suche und der Näherungsdetektor werden beendet.</string>
     <string name="exit_yes">Schließen</string>
     <string name="usage_label">Dieses Telefon in der anonymen Nutzungsstatistik zählen (Zufallskennung, ohne Standort)</string>
+    <string name="stale_data">Aktualisiert %1$s</string>
+    <string name="alarm_label">LANDEALARM</string>
+    <string name="alarm_off">Aus</string>
+    <string name="alarm_hint">Ton und Vibration, wenn die vorhergesagte Landung einer fliegenden Sonde höchstens so weit von dir entfernt ist. Funktioniert bei geöffneter App.</string>
+    <string name="alarm_title">Landealarm</string>
+    <string name="alarm_line">%1$s: Landung vorhergesagt %2$s von dir%3$s</string>
+    <string name="alarm_eta">(~%1$d min)</string>
+    <string name="alarm_view">Zeigen</string>
 </resources>

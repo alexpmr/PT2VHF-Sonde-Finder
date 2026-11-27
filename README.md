@@ -9,6 +9,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 ## Funções
 
 - **Mapa vetorial** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
+- **Fase do voo no mapa**: balão enquanto a sonda sobe, paraquedas enquanto desce (ponto quando parada ou sem sinal há mais de 10 min).
 - **Filtro** de raio (10–500 km) e janela de tempo (1 h a 1 ano), salvo no aparelho.
 - **Seleção** automática (a que transmitiu mais recentemente) ou manual (toque no mapa ou pela lista).
 - **Bússola** com agulha ADF apontando para a última posição recebida ou para o pouso previsto; rumo, "vire X°", elevação para a antena e tempo até o pouso.
@@ -16,6 +17,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 - **Resgates**: relatos do SondeHub (`/recovered`) marcam sondas já recuperadas (verde) ou não achadas; opção de escondê-las.
 - **Aviso** quando o último pacote foi recebido muito acima do solo (a sonda pode ter caído adiante, no rumo indicado).
 - **Detector de proximidade**: bipe e vibração cada vez mais rápidos a partir de 3 km; som diferente abaixo de 50 m.
+- **Alarme de pouso** (Filtro › Alarme de pouso: 2, 5, 10, 20 ou 50 km): som e vibração quando o pouso previsto de uma sonda no ar, a até 400 km, ficar a essa distância de você. Verifica a cada minuto, com o app aberto.
 - Copiar coordenadas e abrir no app de navegação.
 - **Idiomas**: inglês (padrão para idiomas sem tradução), português, espanhol, alemão, francês, italiano e polonês. No Android 13+ dá para escolher o idioma só do app em Configurações › Apps.
 
@@ -28,7 +30,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 | Previsão de pouso | `GET /predictions?vehicles` |
 | Relatos de resgate | `GET /recovered?lat&lon&distance&last` |
 
-Consulta a cada 10 s em janelas de até 24 h e a cada 2 min em janelas maiores.
+Consulta a cada 5 s (a cada 2 min em janelas maiores que 24 h sem sonda no ar), uma requisição por vez: se a anterior ainda não respondeu, a rodada é pulada, sem fila. Trajetória e previsão vêm em paralelo, a cada 30 s. Sem resposta nova por mais de 30 s, o selo "ao vivo" vira "Atualizado há X".
 
 ## Compilar
 

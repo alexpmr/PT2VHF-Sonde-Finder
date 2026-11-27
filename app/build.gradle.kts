@@ -9,8 +9,8 @@ android {
         applicationId = "com.pt2vhf.sondefinder"
         minSdk = 26
         targetSdk = 36
-        versionCode = 16
-        versionName = "1.9.0"
+        versionCode = 17
+        versionName = "1.10.0"
         // Real phones only (ARM); x86 builds exist only for emulators and double the APK size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
@@ -52,4 +52,5 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("org.maplibre.gl:android-sdk:13.8.0")
+    testImplementation("junit:junit:4.13.2")
 }

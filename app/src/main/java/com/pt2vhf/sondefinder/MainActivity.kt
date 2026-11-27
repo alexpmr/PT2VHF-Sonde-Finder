@@ -51,8 +51,12 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     companion object {
         const val MAX_RADIUS_KM = 25
         val WINDOWS_H = intArrayOf(1, 3, 6, 12, 24, 48, 168, 360, 720, 2160, 4320, 8760)
-        const val POLL_MS = 10_000L       // nearby poll interval (be gentle with SondeHub)
+        const val POLL_MS = 5_000L        // nearby poll interval (one request at a time, never queued)
         const val DETAIL_MS = 30_000L     // track / prediction refresh
+        const val STALE_MS = 30_000L      // no fresh list for this long: say so instead of "live"
+        const val ALARM_MS = 60_000L      // landing alarm check interval
+        const val ALARM_SEARCH_M = 400_000 // flying sondes this far away may still land near the user
+        val ALARM_KM = intArrayOf(0, 2, 5, 10, 20, 50)
         const val DETECT_MAX_M = 5000f    // detector starts clicking at 5 km
         val ACCENT = Color.parseColor("#FF8A3D")
         val BLUE = Color.parseColor("#4DA3FF")
@@ -68,7 +72,18 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private lateinit var compass: CompassView
 
     private val ui = Handler(Looper.getMainLooper())
-    private val io = Executors.newSingleThreadExecutor()
+    // One job in flight per executor: a new poll is skipped while the previous one runs, so a slow
+    // network can never build a queue of old requests (that once left the map 25 min behind).
+    private val io = Executors.newSingleThreadExecutor()        // sonde list
+    private val detailIo = Executors.newSingleThreadExecutor()  // track + prediction of the selected sonde
+    private val alarmIo = Executors.newSingleThreadExecutor()   // landing alarm
+    private var listBusy = false
+    private var detailBusy = false
+    private var alarmBusy = false
+    private var lastOkAt = 0L
+    private var alarmKm = 0
+    private var lastAlarmAt = 0L
+    private val alarmed = HashSet<String>()
 
     private var me: Location? = null
     private var sonde: Sonde? = null
@@ -129,6 +144,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             mapStyle = it.getString("mapStyle", "dark") ?: "dark"
             mapBrightness = it.getInt("mapBrightness", 0)
             sortByAge = it.getBoolean("sortByAge", false)
+            alarmKm = it.getInt("alarmKm", 0).takeIf { k -> k in ALARM_KM } ?: 0
         }
         setupMap(savedInstanceState)
         if (mapHeadingUp) ui.postDelayed({ setMapHeadingUp(true, false) }, 1000)
@@ -196,7 +212,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     override fun onDestroy() {
         super.onDestroy()
         map.onDestroy()
-        io.shutdownNow()
+        io.shutdownNow(); detailIo.shutdownNow(); alarmIo.shutdownNow()
     }
 
     // ---------------------------------------------------------------- map
@@ -239,7 +255,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                 now - o.timeMs < 10 * 60_000L -> SondeMap.Kind.LIVE
                 else -> SondeMap.Kind.OLD
             }
-            SondeMap.Other(o.serial, o.lat, o.lon, kind)
+            SondeMap.Other(o.serial, o.lat, o.lon, kind, FlightLogic.phase(o.velV, now - o.timeMs))
         })
         findViewById<TextView>(R.id.btnList).text = resources.getQuantityString(R.plurals.sondes_count, all.size, all.size)
     }
@@ -252,7 +268,9 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         val land = pred?.landing
         map.setSelected(s?.lat, s?.lon, track.map { ll(it.lat, it.lon) },
             if (s != null && land != null && s.velV < 0) ll(land.lat, land.lon) else null,
-            lineToUser = u != null && s != null)
+            lineToUser = u != null && s != null,
+            phase = if (s == null || recoveries[s.serial]?.recovered == true) Phase.NONE
+                else FlightLogic.phase(s.velV, System.currentTimeMillis() - s.timeMs))
         if (!autoFitDone && (s != null || u != null)) {
             fitAll(); if (s != null && u != null) autoFitDone = true
         }
@@ -263,25 +281,32 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private val poll = object : Runnable {
         override fun run() {
             fetch()
-            // history windows change slowly: poll every 2 min instead of 10 s
-            ui.postDelayed(this, if (windowH > 24) 120_000L else POLL_MS)
+            checkAlarm()
+            ui.postDelayed(this, pollInterval())
         }
+    }
+
+    /** History windows change slowly: poll every 2 min, unless a sonde is flying. */
+    private fun pollInterval(): Long {
+        val now = System.currentTimeMillis()
+        val flying = all.any { now - it.timeMs < FlightLogic.LIVE_MS }
+        return if (windowH > 24 && !flying) 120_000L else POLL_MS
     }
 
     private fun fetch() {
         val loc = me ?: return
+        if (listBusy) return // previous request still running: skip, never queue
         val lat = loc.latitude; val lon = loc.longitude
-        val current = sonde?.serial
         val manual = manualSerial
         val radiusM = radiusKm * 1000
         val lastSec = windowH * 3600
-        val wantDetail = System.currentTimeMillis() - lastDetailAt > DETAIL_MS
         val wantRec = System.currentTimeMillis() - lastRecAt > 120_000L
         val hide = hideRecovered
         val knownRec = recoveries
         val hKey = "$radiusM/$lastSec/${"%.2f".format(Locale.US, lat)}/${"%.2f".format(Locale.US, lon)}"
         val wantHist = windowH > 72 && (hKey != histKey || System.currentTimeMillis() - histAt > 30 * 60_000L)
         val knownHist = if (windowH > 72 && hKey == histKey) histFlights else emptyMap()
+        listBusy = true
         io.execute {
             try {
                 val rec = if (wantRec) try {
@@ -303,23 +328,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                 // manual choice if still present, else the most recently heard (ties → nearest)
                 val nearest = list.firstOrNull { it.serial == manual }
                     ?: list.sortedWith(compareByDescending<Sonde> { it.timeMs / 30_000 }.thenBy { dist(it) }).firstOrNull()
-                var tr: List<Point>? = null
-                var pr: Prediction? = null
-                var gotDetail = false
-                if (nearest != null && (nearest.serial != current || wantDetail)) {
-                    tr = try { SondeHub.track(nearest.serial) } catch (e: Exception) { null }
-                    pr = try { SondeHub.prediction(nearest.serial) } catch (e: Exception) { null }
-                    // old flights: no live track/prediction any more, use the archived summary
-                    val f = hist[nearest.serial]
-                    if (f != null) {
-                        if (tr.isNullOrEmpty()) tr = f.frames
-                        if (pr == null && f.landing != null) pr = Prediction(listOf(f.landing))
-                    }
-                    gotDetail = true
-                }
                 ui.post {
+                    listBusy = false
                     if (radiusM != radiusKm * 1000 || lastSec != windowH * 3600 || manual != manualSerial) return@post // stale
                     netError = null
+                    lastOkAt = System.currentTimeMillis()
                     all = list
                     if (wantHist) { histFlights = hist; histKey = hKey; histAt = System.currentTimeMillis() }
                     if (rec != null) { recoveries = rec; lastRecAt = System.currentTimeMillis() }
@@ -330,19 +343,98 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
                     emptyResult = nearest == null
                     if (nearest == null) { sonde = null; track = emptyList(); pred = null }
                     else {
-                        if (nearest.serial != sonde?.serial) autoFitDone = false
-                        sonde = nearest
-                        if (gotDetail) {
-                            track = tr ?: emptyList(); pred = pr
-                            detailSerial = nearest.serial; lastDetailAt = System.currentTimeMillis()
+                        if (nearest.serial != sonde?.serial) {
+                            autoFitDone = false
+                            if (nearest.serial != detailSerial) { track = emptyList(); pred = null }
                         }
+                        sonde = nearest
+                        if (nearest.serial != detailSerial || System.currentTimeMillis() - lastDetailAt > DETAIL_MS)
+                            fetchDetail(nearest.serial, hist[nearest.serial])
                     }
                     render(); updateMap()
                 }
             } catch (e: Exception) {
-                ui.post { netError = e.message ?: getString(R.string.network_error); render() }
+                ui.post { listBusy = false; netError = e.message ?: getString(R.string.network_error); render() }
             }
         }
+    }
+
+    /** Track and prediction of the selected sonde, on their own thread so the list keeps updating. */
+    private fun fetchDetail(serial: String, archived: SondeHub.Flight?) {
+        if (detailBusy) return
+        detailBusy = true
+        detailIo.execute {
+            var tr = try { SondeHub.track(serial) } catch (e: Exception) { null }
+            var pr = try { SondeHub.prediction(serial) } catch (e: Exception) { null }
+            // old flights: no live track/prediction any more, use the archived summary
+            if (archived != null) {
+                if (tr.isNullOrEmpty()) tr = archived.frames
+                if (pr == null && archived.landing != null) pr = Prediction(listOf(archived.landing))
+            }
+            ui.post {
+                detailBusy = false
+                if (sonde?.serial != serial) return@post // selection changed meanwhile
+                val same = detailSerial == serial
+                // a failed refresh keeps what was already shown for this sonde
+                track = tr ?: if (same) track else emptyList()
+                pred = pr ?: if (same) pred else null
+                detailSerial = serial; lastDetailAt = System.currentTimeMillis()
+                render(); updateMap()
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- landing alarm
+
+    /** Every minute while enabled: flying sondes up to 400 km away whose predicted landing is near. */
+    private fun checkAlarm() {
+        if (alarmKm <= 0 || alarmBusy) return
+        val loc = me ?: return
+        val now = System.currentTimeMillis()
+        if (now - lastAlarmAt < ALARM_MS) return
+        lastAlarmAt = now; alarmBusy = true
+        val lat = loc.latitude; val lon = loc.longitude
+        val maxM = alarmKm * 1000.0
+        val done = HashSet(alarmed)
+        alarmIo.execute {
+            val hits = try {
+                val flying = SondeHub.nearby(lat, lon, ALARM_SEARCH_M, 15 * 60)
+                    .filter { FlightLogic.phase(it.velV, now - it.timeMs) != Phase.NONE }
+                    .map { it.serial }.filter { it !in done }
+                FlightLogic.alarmHits(lat, lon, maxM, SondeHub.predictions(flying), now, done)
+            } catch (e: Exception) { emptyList() }
+            ui.post {
+                alarmBusy = false
+                if (hits.isNotEmpty() && alarmKm > 0) fireAlarm(hits)
+            }
+        }
+    }
+
+    private fun fireAlarm(hits: List<FlightLogic.AlarmHit>) {
+        hits.forEach { alarmed.add(it.serial) }
+        try {
+            ToneGenerator(AudioManager.STREAM_ALARM, 100).let { t ->
+                t.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 2500)
+                ui.postDelayed({ t.release() }, 3000)
+            }
+        } catch (_: Exception) {}
+        try {
+            (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+                .vibrate(VibrationEffect.createWaveform(longArrayOf(0, 600, 300, 600, 300, 600), -1))
+        } catch (_: Exception) {}
+        val now = System.currentTimeMillis()
+        val lines = hits.joinToString("\n") { h ->
+            val d = fmtDist(h.distM).let { "${it.first} ${it.second}" }
+            val eta = if (h.landing.timeMs > now) " " + getString(R.string.alarm_eta, ((h.landing.timeMs - now) / 60_000).toInt()) else ""
+            getString(R.string.alarm_line, h.serial, d, eta)
+        }
+        val first = hits.first().serial
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.alarm_title)
+            .setMessage(lines)
+            .apply { if (all.any { it.serial == first }) setPositiveButton(R.string.alarm_view) { _, _ -> select(first) } }
+            .setNegativeButton(R.string.close, null)
+            .show()
     }
 
     // ---------------------------------------------------------------- location & heading
@@ -607,6 +699,11 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         when {
             me == null -> { live.text = getString(R.string.waiting_gps); setDot(R.id.liveDot, AMBER) }
             netError != null -> { live.text = getString(R.string.no_connection); setDot(R.id.liveDot, RED) }
+            // requests still running but nothing new for a while: never claim "live" on old data
+            lastOkAt > 0 && System.currentTimeMillis() - lastOkAt > pollInterval() + STALE_MS -> {
+                live.text = getString(R.string.stale_data, ageText((System.currentTimeMillis() - lastOkAt) / 1000))
+                setDot(R.id.liveDot, AMBER)
+            }
             else -> { live.text = getString(R.string.live); setDot(R.id.liveDot, GREEN) }
         }
         if (s == null || s.timeMs == 0L) {
@@ -622,7 +719,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     private fun render() {
-        txt(R.id.btnFilter, "$radiusKm km · ${windowLabel(windowH)}")
+        txt(R.id.btnFilter, "$radiusKm km · ${windowLabel(windowH)}" + if (alarmKm > 0) " · 🔔 $alarmKm km" else "")
         txt(R.id.modeLabel, getString(if (manualSerial != null) R.string.mode_manual else R.string.mode_auto))
         findViewById<View>(R.id.btnAuto).visibility = if (manualSerial != null) View.VISIBLE else View.GONE
         val s = sonde
@@ -881,13 +978,16 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
         }
         var hide = hideRecovered
+        var alarm = alarmKm
         val wRow = LinearLayout(this)
         val hRow = LinearLayout(this)
+        val aRow = LinearLayout(this)
         fun fill() {
-            wRow.removeAllViews(); hRow.removeAllViews()
+            wRow.removeAllViews(); hRow.removeAllViews(); aRow.removeAllViews()
             hRow.addView(chip(getString(R.string.show_all), !hide) { hide = false; fill() })
             hRow.addView(chip(getString(R.string.hide_recovered), hide) { hide = true; fill() })
             for (h in WINDOWS_H) wRow.addView(chip(windowLabel(h), h == w) { w = h; fill() })
+            for (k in ALARM_KM) aRow.addView(chip(if (k == 0) getString(R.string.alarm_off) else "$k km", k == alarm) { alarm = k; fill() })
         }
         fill()
         box.addView(label(getString(R.string.radius_label)))
@@ -914,14 +1014,21 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             text = getString(R.string.long_window_hint)
             textSize = 12f; setTextColor(MUTED); setPadding(0, (14 * d).toInt(), 0, 0)
         })
+        box.addView(label(getString(R.string.alarm_label)))
+        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(aRow) })
+        box.addView(TextView(this).apply {
+            text = getString(R.string.alarm_hint)
+            textSize = 12f; setTextColor(MUTED); setPadding(0, (10 * d).toInt(), 0, 0)
+        })
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.filter_title)
-            .setView(box)
+            .setView(ScrollView(this).apply { addView(box) })
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.apply) { _, _ ->
                 radiusKm = r; windowH = w; hideRecovered = hide; lastRecAt = 0
+                if (alarm != alarmKm) { alarmKm = alarm; alarmed.clear(); lastAlarmAt = 0 }
                 getSharedPreferences("cfg", MODE_PRIVATE).edit().putInt("radiusKm", r).putInt("windowH", w)
-                    .putBoolean("hideRecovered", hide).apply()
+                    .putBoolean("hideRecovered", hide).putInt("alarmKm", alarm).apply()
                 all = emptyList(); sonde = null; track = emptyList(); pred = null; histKey = ""
                 manualSerial = null; autoFitDone = false; lastDetailAt = 0; emptyResult = false
                 render(); updateMap()

@@ -4,22 +4,16 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Ícone da sonda no mapa conforme a fase do voo** — subindo: ícone de balão; caindo: ícone de
-  paraquedas.
-- **Alarme de pouso próximo** — alarme configurável que avisa quando houver previsão de uma sonda cair a
-  até X km de onde o usuário está (X definido pelo usuário).
-- **Conexão mais persistente** — verificar a conexão a cada 5 segundos, para não ficar muito tempo sem
-  receber pacotes de uma sonda que está no ar.
-  Relato de 26/11/2026 (v1.9.0): sonda ainda voando aparecia com o último pacote de 25 min atrás, enquanto o
-  SondeHub já tinha pacote de segundos antes (X2142717, RS41, ~11 km descendo, via PT2PAG — checado às 01:13 UTC).
-  Causa provável: `MainActivity` agenda um `fetch()` a cada 10 s num executor de uma thread só
-  (`newSingleThreadExecutor`) sem esperar o anterior terminar; se um ciclo (lista + trilha de 6 h + previsão)
-  demora mais que 10 s no 4G, a fila cresce sem limite e os dados ficam cada vez mais atrasados, e o indicador
-  continua "Ao vivo". Corrigir: não enfileirar novo ciclo enquanto o anterior roda (ou descartar os pendentes),
-  buscar a lista separada da trilha/previsão e avisar quando o dado estiver velho.
+Nenhum item pendente.
 
 ## Resolvido
 
+- **v1.10.0** — Ícone conforme a fase do voo: balão subindo, paraquedas descendo (ponto quando parada ou sem sinal
+  há mais de 10 min). Alarme de pouso configurável (Filtro › 2–50 km): som, vibração e aviso quando o pouso
+  previsto de uma sonda no ar (até 400 km) ficar a essa distância do usuário; verifica a cada minuto, com o app
+  aberto. Conexão mais persistente: consulta a cada 5 s, uma por vez (a rodada é pulada se a anterior não
+  respondeu, sem fila; causa do atraso de 25 min relatado em 26/11/2026), trajetória e previsão numa thread
+  própria, tempos limite curtos e selo "Atualizado há X" quando não chega dado novo.
 - **v1.9.0** — Contagem de usuários: o app envia ao site (`sonde_activity.php`), no máximo 2×/dia, um
   identificador aleatório da instalação (UUID guardado só no aparelho), a versão e a plataforma, nas versões do
   site e do Play; opção para desligar em ⓘ. Política própria em `/privacidade-sonde`. O item "Atualização

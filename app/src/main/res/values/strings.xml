@@ -159,4 +159,12 @@
     <string name="exit_msg">The search and the proximity detector will stop.</string>
     <string name="exit_yes">Close</string>
     <string name="usage_label">Count this phone in the anonymous usage statistics (random ID, no location)</string>
+    <string name="stale_data">Updated %1$s</string>
+    <string name="alarm_label">LANDING ALARM</string>
+    <string name="alarm_off">Off</string>
+    <string name="alarm_hint">Sounds and vibrates when the predicted landing of a flying sonde is within this distance of you. Works while the app is open.</string>
+    <string name="alarm_title">Landing alarm</string>
+    <string name="alarm_line">%1$s: predicted landing %2$s from you%3$s</string>
+    <string name="alarm_eta">(~%1$d min)</string>
+    <string name="alarm_view">Show</string>
 </resources>

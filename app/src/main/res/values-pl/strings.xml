@@ -168,4 +168,16 @@
     <string name="alarm_line">%1$s: przewidywane lądowanie %2$s od ciebie%3$s</string>
     <string name="alarm_eta">(~%1$d min)</string>
     <string name="alarm_view">Pokaż</string>
+    <string name="settings_title">Ustawienia</string>
+    <string name="units_alt_label">WYSOKOŚĆ</string>
+    <string name="units_temp_label">TEMPERATURA</string>
+    <string name="unit_m">Metry (m)</string>
+    <string name="unit_ft">Stopy (ft)</string>
+    <string name="temperature">TEMPERATURA</string>
+    <string name="pressure">CIŚNIENIE</string>
+    <string name="upd_play_unavailable">Nie można połączyć się z Google Play.</string>
+    <string name="upd_play_ready_title">Aktualizacja pobrana</string>
+    <string name="upd_play_ready_msg">Nowa wersja jest gotowa. Uruchom ponownie aplikację, aby ją zainstalować.</string>
+    <string name="upd_play_restart">Uruchom ponownie</string>
+    <string name="upd_play_later">Później</string>
 </resources>

@@ -167,4 +167,16 @@
     <string name="alarm_line">%1$s: pouso previsto a %2$s de você%3$s</string>
     <string name="alarm_eta">(~%1$d min)</string>
     <string name="alarm_view">Ver</string>
+    <string name="settings_title">Configurações</string>
+    <string name="units_alt_label">ALTITUDE</string>
+    <string name="units_temp_label">TEMPERATURA</string>
+    <string name="unit_m">Metros (m)</string>
+    <string name="unit_ft">Pés (ft)</string>
+    <string name="temperature">TEMPERATURA</string>
+    <string name="pressure">PRESSÃO</string>
+    <string name="upd_play_unavailable">Não foi possível consultar o Google Play.</string>
+    <string name="upd_play_ready_title">Atualização baixada</string>
+    <string name="upd_play_ready_msg">A nova versão está pronta. Reinicie o app para instalar.</string>
+    <string name="upd_play_restart">Reiniciar</string>
+    <string name="upd_play_later">Depois</string>
 </resources>

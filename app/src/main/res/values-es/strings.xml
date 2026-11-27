@@ -167,4 +167,16 @@
     <string name="alarm_line">%1$s: caída prevista a %2$s de ti%3$s</string>
     <string name="alarm_eta">(~%1$d min)</string>
     <string name="alarm_view">Ver</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="units_alt_label">ALTITUD</string>
+    <string name="units_temp_label">TEMPERATURA</string>
+    <string name="unit_m">Metros (m)</string>
+    <string name="unit_ft">Pies (ft)</string>
+    <string name="temperature">TEMPERATURA</string>
+    <string name="pressure">PRESIÓN</string>
+    <string name="upd_play_unavailable">No se pudo consultar Google Play.</string>
+    <string name="upd_play_ready_title">Actualización descargada</string>
+    <string name="upd_play_ready_msg">La nueva versión está lista. Reinicia la app para instalarla.</string>
+    <string name="upd_play_restart">Reiniciar</string>
+    <string name="upd_play_later">Más tarde</string>
 </resources>

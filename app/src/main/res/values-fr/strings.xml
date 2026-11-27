@@ -167,4 +167,16 @@
     <string name="alarm_line">%1$s : atterrissage prévu à %2$s de vous%3$s</string>
     <string name="alarm_eta">(~%1$d min)</string>
     <string name="alarm_view">Voir</string>
+    <string name="settings_title">Paramètres</string>
+    <string name="units_alt_label">ALTITUDE</string>
+    <string name="units_temp_label">TEMPÉRATURE</string>
+    <string name="unit_m">Mètres (m)</string>
+    <string name="unit_ft">Pieds (ft)</string>
+    <string name="temperature">TEMPÉRATURE</string>
+    <string name="pressure">PRESSION</string>
+    <string name="upd_play_unavailable">Impossible de joindre Google Play.</string>
+    <string name="upd_play_ready_title">Mise à jour téléchargée</string>
+    <string name="upd_play_ready_msg">La nouvelle version est prête. Redémarrez l\'app pour l\'installer.</string>
+    <string name="upd_play_restart">Redémarrer</string>
+    <string name="upd_play_later">Plus tard</string>
 </resources>

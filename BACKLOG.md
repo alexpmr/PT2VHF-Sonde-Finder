@@ -4,23 +4,16 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Tela de Configurações com unidades** (27/11/2026): altitude e distância em metros ou pés; temperatura em
-  °C ou °F. Escolha salva no aparelho e aplicada em todas as telas.
-- **Temperatura e pressão nas duas telas** (27/11/2026): adicionar um campo de temperatura e outro de pressão
-  no mapa e na bússola, com os valores do último pacote da sonda selecionada (quando a sonda transmitir esses
-  dados; senão "—"). Temperatura segue a unidade escolhida nas Configurações.
-- **Alerta de pouso a X km nas Configurações** (27/11/2026): configurar ali o alerta para quando uma sonda tiver
-  previsão de cair a X km de onde está o aparelho. Já existe desde a v1.10.0 em Filtro › Alarme de pouso
-  (2–50 km, com o app aberto); o pedido é tê-lo na tela de Configurações.
-- **Adicionar OTA** (27/11/2026): atualização pelo próprio app. Hoje a versão `github` (APK do site) já consulta
-  `update.php?product=sonde` uma vez por dia e pelo ⓘ, mas o site ainda não publica versão assinada (aguarda os
-  secrets do CI); a versão `play` não tem OTA. Decisão do mantenedor (27/11/2026): **OTA completo** —
-  (a) versão `github`: OTA do APK do site funcionando de ponta a ponta (release assinada → site → aviso, download
-  conferido por SHA-256 e instalação); (b) versão `play`: aviso de atualização do Google Play (In-App Updates).
-- **Versão no topo** (27/11/2026): mostrar a versão do app em cima, junto com o nome (ex.: "PT2VHF Sonde Finder
-  1.10.0").
+Nenhum item pendente.
 
 ## Resolvido
+
+- **v1.11.0** — Tela de Configurações (⚙): altitude em metros ou pés (vale para todas as altitudes; distâncias e
+  velocidades continuam métricas), temperatura em °C ou °F, e o alarme de pouso a X km (saiu do Filtro).
+  Campos de temperatura (`temp`) e pressão (`pressure`, hPa) do último pacote no mapa e na bússola ("—" quando a
+  sonda não envia). Nome e versão no topo: "PT2VHF Sonde Finder 1.11.0". OTA completo: APK do site pelo
+  `update.php` (release assinada → `sync-sonde-release.yml` → aviso no app, download conferido por SHA-256 e
+  certificado) e, na versão `play`, Google Play In-App Updates (flexível).
 
 - **v1.10.0** — Ícone conforme a fase do voo: balão subindo, paraquedas descendo (ponto quando parada ou sem sinal
   há mais de 10 min). Alarme de pouso configurável (Filtro › 2–50 km): som, vibração e aviso quando o pouso

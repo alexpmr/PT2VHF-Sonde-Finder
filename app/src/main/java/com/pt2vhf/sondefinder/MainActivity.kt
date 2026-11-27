@@ -82,6 +82,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     private var alarmBusy = false
     private var lastOkAt = 0L
     private var alarmKm = 0
+    private var altFeet = false   // Settings: altitude in feet instead of metres
+    private var tempF = false     // Settings: temperature in °F instead of °C
     private var lastAlarmAt = 0L
     private val alarmed = HashSet<String>()
 
@@ -145,6 +147,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             mapBrightness = it.getInt("mapBrightness", 0)
             sortByAge = it.getBoolean("sortByAge", false)
             alarmKm = it.getInt("alarmKm", 0).takeIf { k -> k in ALARM_KM } ?: 0
+            altFeet = it.getBoolean("altFeet", false)
+            tempF = it.getBoolean("tempF", false)
         }
         setupMap(savedInstanceState)
         if (mapHeadingUp) ui.postDelayed({ setMapHeadingUp(true, false) }, 1000)
@@ -172,7 +176,9 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         findViewById<View>(R.id.btnCenter).setOnClickListener { fitAll() }
         findViewById<View>(R.id.btnOrient).setOnClickListener { setMapHeadingUp(!mapHeadingUp, true) }
         findViewById<View>(R.id.btnAbout).setOnClickListener { showAbout() }
-        if (BuildConfig.OTA) UpdateManager.check(this, false)
+        findViewById<View>(R.id.btnSettings).setOnClickListener { showSettings() }
+        showTitle()
+        StoreUpdate.check(this, false)
         UsagePing.maybeSend(this)
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             // Android 13+ (and predictive back on 16): onBackPressed is no longer called
@@ -192,6 +198,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         registerCompass()
         ui.post(poll)
         ui.post(tick)
+        StoreUpdate.onResume(this)
     }
 
     override fun onPause() {
@@ -656,7 +663,15 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
     }
 
     // no-break space between number and unit: "1.075 m" never splits across lines
-    private fun fmtAlt(a: Double) = if (a.isNaN()) "—" else String.format(BR, "%,.0f\u00A0m", a)
+    private fun fmtAlt(a: Double) = if (a.isNaN()) "—"
+        else String.format(BR, if (altFeet) "%,.0f ft" else "%,.0f m", Units.alt(a, altFeet))
+
+    private fun fmtTemp(c: Double) = if (c.isNaN()) "—"
+        else String.format(BR, if (tempF) "%.1f °F" else "%.1f °C", Units.temp(c, tempF)).replace("-", "−")
+
+    // hPa; very small values (stratosphere) keep two decimals
+    private fun fmtPress(h: Double) = if (h.isNaN() || h <= 0) "—"
+        else String.format(BR, if (h < 10) "%.2f hPa" else "%.1f hPa", h)
 
     private fun ageColor(sec: Long) = when { sec < 30 -> GREEN; sec < 120 -> AMBER; else -> RED }
 
@@ -734,7 +749,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             txt(R.id.cType, findViewById<TextView>(R.id.stype).text)
             txt(R.id.badge, "—")
             for (id in listOf(R.id.vAlt, R.id.vVv, R.id.vVh, R.id.vHead, R.id.vFreq, R.id.vEta, R.id.coords,
-                R.id.cAlt, R.id.cElev, R.id.cEta, R.id.chipDist, R.id.cDist)) txt(id, "—")
+                R.id.cAlt, R.id.cElev, R.id.cEta, R.id.chipDist, R.id.cDist, R.id.vTemp, R.id.vPress, R.id.cTemp, R.id.cPress)) txt(id, "—")
             txt(R.id.via, ""); txt(R.id.cVv, "")
             findViewById<View>(R.id.warn).visibility = View.GONE
             findViewById<View>(R.id.cWarn).visibility = View.GONE
@@ -789,6 +804,8 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         txt(R.id.vFreq, if (s.freq.isNaN()) "—" else String.format(BR, "%.3f", s.freq))
         txt(R.id.coords, String.format(Locale.US, "%.5f, %.5f", s.lat, s.lon))
         txt(R.id.cAlt, fmtAlt(s.alt))
+        txt(R.id.vTemp, fmtTemp(s.temp)); txt(R.id.cTemp, fmtTemp(s.temp))
+        txt(R.id.vPress, fmtPress(s.pressure)); txt(R.id.cPress, fmtPress(s.pressure))
         txt(R.id.cVv, if (s.velV.isNaN()) "" else String.format(BR, "%s %.1f m/s", if (s.velV < 0) "↓" else "↑", abs(s.velV)))
 
         val u = me
@@ -964,6 +981,66 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             .putString("mapStyle", style).putInt("mapBrightness", mapBrightness).apply()
     }
 
+    /** Top bar: "PT2VHF Sonde Finder 1.11.0", version in a lighter tone. */
+    private fun showTitle() {
+        val name = "PT2VHF Sonde Finder"
+        val t = android.text.SpannableString("$name ${UpdateManager.installedVersion(this)}")
+        t.setSpan(android.text.style.ForegroundColorSpan(MUTED), name.length, t.length, 0)
+        t.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.NORMAL), name.length, t.length, 0)
+        findViewById<TextView>(R.id.appTitle).text = t
+    }
+
+    /** Settings: units (altitude m/ft, temperature °C/°F) and the landing alarm. */
+    private fun showSettings() {
+        val d = resources.displayMetrics.density
+        var feet = altFeet
+        var fahr = tempF
+        var alarm = alarmKm
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((20 * d).toInt(), (8 * d).toInt(), (20 * d).toInt(), 0)
+        }
+        fun label(t: String) = TextView(this).apply {
+            text = t; textSize = 12f; setTextColor(MUTED); letterSpacing = 0.08f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
+        }
+        val altRow = LinearLayout(this)
+        val tRow = LinearLayout(this)
+        val aRow = LinearLayout(this)
+        fun fill() {
+            altRow.removeAllViews(); tRow.removeAllViews(); aRow.removeAllViews()
+            altRow.addView(chip(getString(R.string.unit_m), !feet) { feet = false; fill() })
+            altRow.addView(chip(getString(R.string.unit_ft), feet) { feet = true; fill() })
+            tRow.addView(chip("°C", !fahr) { fahr = false; fill() })
+            tRow.addView(chip("°F", fahr) { fahr = true; fill() })
+            for (k in ALARM_KM) aRow.addView(chip(if (k == 0) getString(R.string.alarm_off) else "$k km", k == alarm) { alarm = k; fill() })
+        }
+        fill()
+        box.addView(label(getString(R.string.units_alt_label)))
+        box.addView(altRow)
+        box.addView(label(getString(R.string.units_temp_label)))
+        box.addView(tRow)
+        box.addView(label(getString(R.string.alarm_label)))
+        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(aRow) })
+        box.addView(TextView(this).apply {
+            text = getString(R.string.alarm_hint)
+            textSize = 12f; setTextColor(MUTED); setPadding(0, (10 * d).toInt(), 0, 0)
+        })
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(R.string.settings_title)
+            .setView(ScrollView(this).apply { addView(box) })
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.apply) { _, _ ->
+                altFeet = feet; tempF = fahr
+                if (alarm != alarmKm) { alarmKm = alarm; alarmed.clear(); lastAlarmAt = 0 }
+                getSharedPreferences("cfg", MODE_PRIVATE).edit().putBoolean("altFeet", feet)
+                    .putBoolean("tempF", fahr).putInt("alarmKm", alarm).apply()
+                render()
+            }
+            .show()
+    }
+
     private fun showFilterDialog() {
         val d = resources.displayMetrics.density
         var r = radiusKm
@@ -978,16 +1055,13 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
         }
         var hide = hideRecovered
-        var alarm = alarmKm
         val wRow = LinearLayout(this)
         val hRow = LinearLayout(this)
-        val aRow = LinearLayout(this)
         fun fill() {
-            wRow.removeAllViews(); hRow.removeAllViews(); aRow.removeAllViews()
+            wRow.removeAllViews(); hRow.removeAllViews()
             hRow.addView(chip(getString(R.string.show_all), !hide) { hide = false; fill() })
             hRow.addView(chip(getString(R.string.hide_recovered), hide) { hide = true; fill() })
             for (h in WINDOWS_H) wRow.addView(chip(windowLabel(h), h == w) { w = h; fill() })
-            for (k in ALARM_KM) aRow.addView(chip(if (k == 0) getString(R.string.alarm_off) else "$k km", k == alarm) { alarm = k; fill() })
         }
         fill()
         box.addView(label(getString(R.string.radius_label)))
@@ -1014,21 +1088,14 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             text = getString(R.string.long_window_hint)
             textSize = 12f; setTextColor(MUTED); setPadding(0, (14 * d).toInt(), 0, 0)
         })
-        box.addView(label(getString(R.string.alarm_label)))
-        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(aRow) })
-        box.addView(TextView(this).apply {
-            text = getString(R.string.alarm_hint)
-            textSize = 12f; setTextColor(MUTED); setPadding(0, (10 * d).toInt(), 0, 0)
-        })
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.filter_title)
             .setView(ScrollView(this).apply { addView(box) })
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.apply) { _, _ ->
                 radiusKm = r; windowH = w; hideRecovered = hide; lastRecAt = 0
-                if (alarm != alarmKm) { alarmKm = alarm; alarmed.clear(); lastAlarmAt = 0 }
                 getSharedPreferences("cfg", MODE_PRIVATE).edit().putInt("radiusKm", r).putInt("windowH", w)
-                    .putBoolean("hideRecovered", hide).putInt("alarmKm", alarm).apply()
+                    .putBoolean("hideRecovered", hide).apply()
                 all = emptyList(); sonde = null; track = emptyList(); pred = null; histKey = ""
                 manualSerial = null; autoFitDone = false; lastDetailAt = 0; emptyResult = false
                 render(); updateMap()
@@ -1204,7 +1271,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
         AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
             .setTitle(R.string.app_name)
             .setView(ScrollView(this).apply { addView(box) })
-            .apply { if (BuildConfig.OTA) setPositiveButton(R.string.check_updates) { _, _ -> UpdateManager.check(this@MainActivity, true) } }
+            .setPositiveButton(R.string.check_updates) { _, _ -> StoreUpdate.check(this@MainActivity, true) }
             .setNeutralButton("www.PT2VHF.com") { _, _ ->
                 try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pt2vhf.com/sonde"))) } catch (_: Exception) {}
             }

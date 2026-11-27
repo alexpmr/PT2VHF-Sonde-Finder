@@ -19,6 +19,8 @@ data class Sonde(
     val freq: Double,
     val timeMs: Long,
     val uploader: String,
+    val temp: Double = Double.NaN,      // °C (air temperature sensor)
+    val pressure: Double = Double.NaN,  // hPa (only sondes with a pressure sensor, or computed)
 )
 
 data class Recovery(val serial: String, val recovered: Boolean, val by: String, val description: String, val timeMs: Long)
@@ -87,6 +89,8 @@ object SondeHub {
             freq = o.d("frequency"),
             timeMs = parseTime(o.optString("datetime", null)),
             uploader = o.optString("uploader_callsign", ""),
+            temp = o.d("temp"),
+            pressure = o.d("pressure"),
         )
     }
 

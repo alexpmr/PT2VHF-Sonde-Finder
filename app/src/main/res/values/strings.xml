@@ -167,4 +167,16 @@
     <string name="alarm_line">%1$s: predicted landing %2$s from you%3$s</string>
     <string name="alarm_eta">(~%1$d min)</string>
     <string name="alarm_view">Show</string>
+    <string name="settings_title">Settings</string>
+    <string name="units_alt_label">ALTITUDE</string>
+    <string name="units_temp_label">TEMPERATURE</string>
+    <string name="unit_m">Metres (m)</string>
+    <string name="unit_ft">Feet (ft)</string>
+    <string name="temperature">TEMPERATURE</string>
+    <string name="pressure">PRESSURE</string>
+    <string name="upd_play_unavailable">Could not reach Google Play to check for updates.</string>
+    <string name="upd_play_ready_title">Update downloaded</string>
+    <string name="upd_play_ready_msg">The new version is ready. Restart the app to install it.</string>
+    <string name="upd_play_restart">Restart</string>
+    <string name="upd_play_later">Later</string>
 </resources>

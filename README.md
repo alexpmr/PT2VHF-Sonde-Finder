@@ -10,6 +10,8 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 
 - **Mapa vetorial** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
 - **Fase do voo no mapa**: balão enquanto a sonda sobe, paraquedas enquanto desce (ponto quando parada ou sem sinal há mais de 10 min).
+- **Configurações** (⚙ no topo): altitude em metros ou pés, temperatura em °C ou °F e o alarme de pouso. Nome e versão no topo ("PT2VHF Sonde Finder 1.11.0").
+- **Temperatura e pressão** do último pacote da sonda selecionada, no mapa e na bússola ("—" quando a sonda não envia o dado).
 - **Filtro** de raio (10–500 km) e janela de tempo (1 h a 1 ano), salvo no aparelho.
 - **Seleção** automática (a que transmitiu mais recentemente) ou manual (toque no mapa ou pela lista).
 - **Bússola** com agulha ADF apontando para a última posição recebida ou para o pouso previsto; rumo, "vire X°", elevação para a antena e tempo até o pouso.
@@ -17,7 +19,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 - **Resgates**: relatos do SondeHub (`/recovered`) marcam sondas já recuperadas (verde) ou não achadas; opção de escondê-las.
 - **Aviso** quando o último pacote foi recebido muito acima do solo (a sonda pode ter caído adiante, no rumo indicado).
 - **Detector de proximidade**: bipe e vibração cada vez mais rápidos a partir de 3 km; som diferente abaixo de 50 m.
-- **Alarme de pouso** (Filtro › Alarme de pouso: 2, 5, 10, 20 ou 50 km): som e vibração quando o pouso previsto de uma sonda no ar, a até 400 km, ficar a essa distância de você. Verifica a cada minuto, com o app aberto.
+- **Alarme de pouso** (Configurações › Alarme de pouso: 2, 5, 10, 20 ou 50 km): som e vibração quando o pouso previsto de uma sonda no ar, a até 400 km, ficar a essa distância de você. Verifica a cada minuto, com o app aberto.
 - Copiar coordenadas e abrir no app de navegação.
 - **Idiomas**: inglês (padrão para idiomas sem tradução), português, espanhol, alemão, francês, italiano e polonês. No Android 13+ dá para escolher o idioma só do app em Configurações › Apps.
 
@@ -43,7 +45,8 @@ Requer JDK 17+ e Android SDK (compileSdk 36).
 O APK sai em `app/build/outputs/apk/release/` (assinado com a chave de debug, para instalação direta).
 ### Assinatura e atualizações
 
-O app verifica uma vez por dia (e pelo botão ⓘ › Verificar atualizações) o catálogo
+A versão do Google Play usa o aviso de atualização do próprio Play (In-App Updates, flexível: baixa em segundo plano e pede para reiniciar). A versão do site (APK)
+verifica uma vez por dia (e pelo botão ⓘ › Verificar atualizações) o catálogo
 `https://www.pt2vhf.com/update.php?product=sonde&platform=android&kind=apk`, no mesmo formato do
 PT2VHF Speed Alert (versão, notas, link `download.php?product=sonde&file=PT2VHF-Sonde-Finder-vX.Y.Z.apk`,
 tamanho e SHA-256). O APK baixado é conferido e entregue ao instalador do Android.

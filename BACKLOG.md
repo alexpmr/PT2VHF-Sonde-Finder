@@ -13,6 +13,8 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 - **Bússola mais limpa** (27/11/2026): no modo bússola, tirar o card de temperatura e pressão e as informações
   de rumo em texto (linha "rumo … vire X°"). Mostrar o ícone da sonda conforme a fase: balão subindo, paraquedas
   descendo.
+- **Bússola maior** (27/11/2026): no modo bússola, reduzir um pouco o tamanho do número da distância e usar o
+  espaço que sobrar para aumentar a bússola.
 
 ## Resolvido
 

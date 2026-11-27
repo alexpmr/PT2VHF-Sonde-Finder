@@ -6,6 +6,8 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 - **Ícone da sonda no mapa conforme a fase do voo** — subindo: ícone de balão; caindo: ícone de
   paraquedas.
+- **Alarme de pouso próximo** — alarme configurável que avisa quando houver previsão de uma sonda cair a
+  até X km de onde o usuário está (X definido pelo usuário).
 
 ## Resolvido
 

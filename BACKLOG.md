@@ -4,7 +4,7 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-- **Ãcone da sonda no mapa conforme a fase do voo** â subindo: Ã­cone de balÃ£o; caindo: Ã­cone de
+- **Ícone da sonda no mapa conforme a fase do voo** — subindo: ícone de balão; caindo: ícone de
   paraquedas.
 
 ## Resolvido

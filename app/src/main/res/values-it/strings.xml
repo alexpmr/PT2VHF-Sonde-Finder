@@ -153,6 +153,7 @@
     <string name="style_fiord">Blu scuro</string>
     <string name="style_positron">Chiaro</string>
     <string name="style_liberty">Colorato</string>
+    <string name="style_satellite">Satellite</string>
     <string name="sort_by_distance">⇅ Per distanza</string>
     <string name="sort_by_age">⇅ Per età</string>
     <string name="exit_title">Chiudere Sonde Finder?</string>

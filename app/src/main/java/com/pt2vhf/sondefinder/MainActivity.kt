@@ -933,7 +933,7 @@ class MainActivity : Activity(), SensorEventListener, LocationListener {
             setPadding(0, (14 * d).toInt(), 0, (8 * d).toInt())
         }
         val names = mapOf("dark" to R.string.style_dark, "fiord" to R.string.style_fiord,
-            "positron" to R.string.style_positron, "liberty" to R.string.style_liberty)
+            "positron" to R.string.style_positron, "liberty" to R.string.style_liberty, SondeMap.SATELLITE to R.string.style_satellite)
         val row = LinearLayout(this)
         fun fill() {
             row.removeAllViews()

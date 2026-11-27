@@ -8,7 +8,7 @@ uma bússola com agulha estilo ADF aponta para a escolhida, com a distância emb
 
 ## Funções
 
-- **Mapa vetorial** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
+- **Mapa** (MapLibre + OpenFreeMap/OpenStreetMap, tema escuro, ou **satélite** Esri World Imagery com nomes de lugares; nomes sempre de pé ao girar) com todas as sondas do filtro, sua posição, a trajetória e o pouso previsto da sonda selecionada.
 - **Fase do voo no mapa**: balão enquanto a sonda sobe, paraquedas enquanto desce (ponto quando parada ou sem sinal há mais de 10 min).
 - **Configurações** (⚙ no topo): altitude em metros ou pés, temperatura em °C ou °F e o alarme de pouso. Nome e versão no topo ("PT2VHF Sonde Finder 1.11.0").
 - **Temperatura e pressão** do último pacote da sonda selecionada, no mapa e na bússola ("—" quando a sonda não envia o dado).

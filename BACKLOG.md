@@ -13,7 +13,8 @@ Nenhum item pendente.
   Campos de temperatura (`temp`) e pressão (`pressure`, hPa) do último pacote no mapa e na bússola ("—" quando a
   sonda não envia). Nome e versão no topo: "PT2VHF Sonde Finder 1.11.0". OTA completo: APK do site pelo
   `update.php` (release assinada → `sync-sonde-release.yml` → aviso no app, download conferido por SHA-256 e
-  certificado) e, na versão `play`, Google Play In-App Updates (flexível).
+  certificado) e, na versão `play`, Google Play In-App Updates (flexível). Mapa de satélite de fundo
+  (estilo "Satélite": Esri World Imagery + camada de fronteiras e nomes de lugares, com atribuição), pedido em 27/11/2026.
 
 - **v1.10.0** — Ícone conforme a fase do voo: balão subindo, paraquedas descendo (ponto quando parada ou sem sinal
   há mais de 10 min). Alarme de pouso configurável (Filtro › 2–50 km): som, vibração e aviso quando o pouso

@@ -91,14 +91,27 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
             m.cameraPosition = CameraPosition.Builder().target(LatLng(-15.79, -47.88)).zoom(4.0).build()
             m.addOnCameraMoveListener { onBearing?.invoke(m.cameraPosition.bearing.toFloat()) }
             m.addOnMapClickListener { p -> click(m, p) }
-            m.setStyle(Style.Builder().fromUri(styleUrl(styleName))) { onStyle(it) }
+            m.setStyle(builder(styleName)) { onStyle(it) }
             applyBrightness()
         }
     }
 
     companion object {
-        val STYLES = listOf("dark", "fiord", "positron", "liberty")
-        fun styleUrl(name: String) = "https://tiles.openfreemap.org/styles/" + (if (name in STYLES) name else "dark")
+        val STYLES = listOf("dark", "fiord", "positron", "liberty", SATELLITE)
+        const val SATELLITE = "satellite"
+        fun styleUrl(name: String) = "https://tiles.openfreemap.org/styles/" + (if (name in STYLES && name != SATELLITE) name else "dark")
+
+        /** Satellite: Esri World Imagery (raster) with the Esri boundaries/place-names overlay on top. */
+        private val SATELLITE_JSON = """{"version":8,"sources":{
+            "sat":{"type":"raster","tileSize":256,"maxzoom":19,
+              "tiles":["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+              "attribution":"Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community"},
+            "names":{"type":"raster","tileSize":256,"maxzoom":19,
+              "tiles":["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"]}},
+            "layers":[{"id":"sat","type":"raster","source":"sat"},{"id":"names","type":"raster","source":"names"}]}"""
+
+        fun builder(name: String): Style.Builder =
+            if (name == SATELLITE) Style.Builder().fromJson(SATELLITE_JSON) else Style.Builder().fromUri(styleUrl(name))
         const val STYLE_FALLBACK = "https://tiles.openfreemap.org/styles/liberty"
         private const val ACCENT = "#FF8A3D"
         private const val BLUE = "#4DA3FF"
@@ -132,7 +145,7 @@ class SondeMap(private val ctx: Context, private val view: MapView, saved: Bundl
     fun setStyleName(name: String) {
         if (name == styleName) return
         styleName = name; style = null; triedFallback = false
-        map?.setStyle(Style.Builder().fromUri(styleUrl(name))) { onStyle(it) }
+        map?.setStyle(builder(name)) { onStyle(it) }
     }
 
     /**

@@ -4,7 +4,20 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-Nenhum item pendente.
+- **Tela de Configurações com unidades** (27/11/2026): altitude e distância em metros ou pés; temperatura em
+  °C ou °F. Escolha salva no aparelho e aplicada em todas as telas.
+- **Temperatura e pressão nas duas telas** (27/11/2026): adicionar um campo de temperatura e outro de pressão
+  no mapa e na bússola, com os valores do último pacote da sonda selecionada (quando a sonda transmitir esses
+  dados; senão "—"). Temperatura segue a unidade escolhida nas Configurações.
+- **Alerta de pouso a X km nas Configurações** (27/11/2026): configurar ali o alerta para quando uma sonda tiver
+  previsão de cair a X km de onde está o aparelho. Já existe desde a v1.10.0 em Filtro › Alarme de pouso
+  (2–50 km, com o app aberto); o pedido é tê-lo na tela de Configurações.
+- **Adicionar OTA** (27/11/2026): atualização pelo próprio app. Hoje a versão `github` (APK do site) já consulta
+  `update.php?product=sonde` uma vez por dia e pelo ⓘ, mas o site ainda não publica versão assinada (aguarda os
+  secrets do CI); a versão `play` não tem OTA. A confirmar com o mantenedor: só garantir o OTA do APK do site
+  funcionando de ponta a ponta, ou também o aviso de atualização do Google Play (In-App Updates) na versão `play`.
+- **Versão no topo** (27/11/2026): mostrar a versão do app em cima, junto com o nome (ex.: "PT2VHF Sonde Finder
+  1.10.0").
 
 ## Resolvido
 

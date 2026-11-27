@@ -4,7 +4,9 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
 
 ## Aberto
 
-Nenhum item pendente.
+- **Rumo pelo GPS por padrão** (27/11/2026): nos testes, a bússola funcionou melhor com o GPS do que com o
+  magnetômetro. Deixar "GPS em movimento" como padrão (`gpsWhenMoving = true` em instalações novas e em quem
+  nunca mudou a opção). Parado, sem rumo do GPS, continua usando a bússola do celular.
 
 ## Resolvido
 

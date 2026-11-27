@@ -10,6 +10,9 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
   também na tela de Configurações. Hoje o satélite já existe na 1.11.0, mas só no botão de estilo do mapa.
 - **Encolher o card de informações no mapa** (27/11/2026): na página do mapa, opção de recolher o card com os
   dados da sonda para ver melhor o mapa (e expandir de novo).
+- **Bússola mais limpa** (27/11/2026): no modo bússola, tirar o card de temperatura e pressão e as informações
+  de rumo em texto (linha "rumo … vire X°"). Mostrar o ícone da sonda conforme a fase: balão subindo, paraquedas
+  descendo.
 
 ## Resolvido
 

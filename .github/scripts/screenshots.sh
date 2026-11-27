@@ -6,6 +6,9 @@ mkdir -p shots
 adb install -r -g app/build/outputs/apk/github/debug/*.apk
 adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION || true
 adb shell pm grant $PKG android.permission.ACCESS_COARSE_LOCATION || true
+# app in Portuguese (site language); Android 13+ per-app locale
+adb shell cmd locale set-app-locales $PKG --locales pt-BR || adb shell "setprop persist.sys.locale pt-BR; setprop ctl.restart zygote"
+sleep 3
 # clean status bar
 adb shell settings put global sysui_demo_allowed 1
 adb shell am broadcast -a com.android.systemui.demo -e command enter

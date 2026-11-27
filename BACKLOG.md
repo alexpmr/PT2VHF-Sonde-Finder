@@ -14,8 +14,9 @@ Itens relatados em testes. Registrar aqui; implementar quando o mantenedor pedir
   (2–50 km, com o app aberto); o pedido é tê-lo na tela de Configurações.
 - **Adicionar OTA** (27/11/2026): atualização pelo próprio app. Hoje a versão `github` (APK do site) já consulta
   `update.php?product=sonde` uma vez por dia e pelo ⓘ, mas o site ainda não publica versão assinada (aguarda os
-  secrets do CI); a versão `play` não tem OTA. A confirmar com o mantenedor: só garantir o OTA do APK do site
-  funcionando de ponta a ponta, ou também o aviso de atualização do Google Play (In-App Updates) na versão `play`.
+  secrets do CI); a versão `play` não tem OTA. Decisão do mantenedor (27/11/2026): **OTA completo** —
+  (a) versão `github`: OTA do APK do site funcionando de ponta a ponta (release assinada → site → aviso, download
+  conferido por SHA-256 e instalação); (b) versão `play`: aviso de atualização do Google Play (In-App Updates).
 - **Versão no topo** (27/11/2026): mostrar a versão do app em cima, junto com o nome (ex.: "PT2VHF Sonde Finder
   1.10.0").
 
